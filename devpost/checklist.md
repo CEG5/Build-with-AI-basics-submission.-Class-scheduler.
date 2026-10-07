@@ -86,6 +86,12 @@ Build mode: fast
 
 ## Final Review
 
+- [x] Redesign after learner feedback: matte grey look, raised marble rim, sharper shapes, minimal type
+- [x] Carve rebuilt: fills from the bottom-right corner (quarters), midterm/final grow up the right side
+- [x] Forks replaced by a day dropdown + note + "add another day"; the rep can edit the schedule later
+- [x] Weekly header: week button at left, upcoming strip beside it (dark nebula when something is coming); old top row and duplicate arrows removed; week-change zones live inside the weekly schedule
+- [x] Add-item form defaults to the class's day and time and warns when there is no class that day
+- [x] Pop animation (block rises out of the surface, grey to colour) on join and create
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
@@ -102,6 +108,10 @@ Activity mode:
 
 ## Revisions
 
+- Carve model replaced (learner decision at the final review): it now fills the class block from the bottom-right corner, bottom-right quarter first, then up the right side (midterm and final) or along the bottom (some quizzes); a squarish shape with softened corners. The item's start time no longer positions the carve, so `prd.md` acceptance "a quiz at 9 a.m. has its carve top at the 9 a.m. line" is superseded; midterm 1/3, final 1/2 and the 20-50% slider are unchanged.
+- Forks (lecture/practical shades) dropped; a class is now a list of weekly sessions (day, start, end, optional note) with an add-another-day control and a later schedule editor — learner request. Data model: `sessions` replaces `forks` (old saved classes are still read).
+- Look rebuilt: matte grey, marble rim raised around a recessed floor, sharper corners, thin letter-spaced type, gem-tone class colours from the learner's "luxury colour" reference, varied-size grid background. Whole-panel tilt was tried and removed on request.
+- Upcoming row and the duplicate week arrows removed; week button and upcoming strip now sit at the top of the weekly schedule; week-change zones are inside the weekly schedule.
 - Carve shape changed from an organic blob to a full-width rounded-rectangular pocket with slightly fluid corners; class names now draw above carves — learner feedback at the first hands-on check: the blob floated in the middle and covered the course title.
 - Importance slider small-end label is now just "Assignment"; the add-item button reads "Apply" — learner feedback (the longer phrase was a private joke, not for the product).
 - Material direction added to the look: granite, metal and glass-like smoothness, clean and professional — to be applied in the final polish slice.

@@ -186,3 +186,8 @@ None. No APIs, accounts, keys, libraries or hosting. All built on browser featur
 - Do `storage` events work between two `file://` windows here? (see Failure Modes.)
 - From `prd.md > Open Questions`: the day axis runs 12 a.m. to midnight (assumed; confirm in the build).
 - The eight colours may be tuned by eye for contrast on the greens.
+
+## Revisions after the first build review
+- Data model: `sessions: [{day, startMin, endMin, note}]` replaces `forks` (older saved classes with forks are flattened on read).
+- Carve: fills from the class block's bottom-right corner (bottom-right quarter first, then up the right side or along the bottom); the item time no longer positions it. See `checklist.md > Revisions`.
+- Look: matte grey, raised marble rim, sharper shapes; upcoming strip moved beside the week button; no top row.

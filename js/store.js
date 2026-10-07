@@ -5,15 +5,16 @@
   var ME_KEY = 'cb.me';
   var CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L: easy to read out loud
 
+  // Gem tones, taken from the learner's "luxury colour" reference: deep, luminous, a little muted.
   var COLOURS = [
-    { key: 'coral',   hex: '#FF5A5F' },
-    { key: 'orange',  hex: '#FF9F1C' },
-    { key: 'amber',   hex: '#FFD23F' },
-    { key: 'lime',    hex: '#B6E92E' },
-    { key: 'aqua',    hex: '#2EE6D6' },
-    { key: 'sky',     hex: '#3FA9FF' },
-    { key: 'violet',  hex: '#8B5CF6' },
-    { key: 'magenta', hex: '#FF4FA3' }
+    { key: 'sapphire', hex: '#2F5FD0' },
+    { key: 'teal',     hex: '#14A3AE' },
+    { key: 'emerald',  hex: '#2F8A68' },
+    { key: 'slate',    hex: '#6F849C' },
+    { key: 'copper',   hex: '#D9622B' },
+    { key: 'crimson',  hex: '#B3224F' },
+    { key: 'amethyst', hex: '#8E3AA6' },
+    { key: 'sand',     hex: '#C9A57A' }
   ];
 
   var Store = {
@@ -122,7 +123,17 @@
   };
 
   // ---- actions ----
-  // data: { name, colour, forks: [ {label, note, days:[{day,startMin,endMin}]} ] }
+  // A class's weekly sessions: [{day, startMin, endMin, note}]. (Older saved classes used forks; flatten those.)
+  Store.sessionsOf = function (cls) {
+    if (Array.isArray(cls.sessions)) return cls.sessions;
+    var out = [];
+    (cls.forks || []).forEach(function (f) {
+      (f.days || []).forEach(function (d) { out.push({ day: d.day, startMin: d.startMin, endMin: d.endMin, note: f.note || '' }); });
+    });
+    return out;
+  };
+
+  // data: { name, colour, sessions: [{day, startMin, endMin, note}] }
   Store.createClass = function (data) {
     var list = Store.classes();
     var cls = {
@@ -130,7 +141,7 @@
       code: Store.makeCode(list),
       name: data.name,
       colour: data.colour,
-      forks: data.forks,
+      sessions: data.sessions,
       items: [],
       createdAt: Date.now()
     };
@@ -152,6 +163,17 @@
     me.memberships[found.id] = { role: 'attendee', colour: found.colour };
     Store.saveMe(me);
     return { ok: true, cls: found };
+  };
+
+  // The rep changes the name and/or weekly sessions of a class they created.
+  Store.updateClass = function (classId, changes) {
+    var list = Store.classes();
+    list.forEach(function (c) {
+      if (c.id !== classId) return;
+      if (changes.name !== undefined) c.name = changes.name;
+      if (changes.sessions !== undefined) { c.sessions = changes.sessions; delete c.forks; }
+    });
+    Store.saveClasses(list);
   };
 
   Store.recolour = function (classId, colourKey) {

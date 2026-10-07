@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1000" viewBox="0 0 1400 1000" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6f747b"/>
+      <stop offset=".5" stop-color="#464b51"/>
+      <stop offset="1" stop-color="#656a71"/>
+    </linearGradient>
+    <filter id="cloud" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.005" numOctaves="3" seed="21"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .13  0 0 0 0 .14  0 0 0 0 .16  1.6 0 0 0 -.62"/>
+    </filter>
+    <filter id="veinA" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.0034" numOctaves="3" seed="8"/>
+      <feComponentTransfer><feFuncR type="linear" slope="3.4" intercept="-1.2"/></feComponentTransfer>
+      <feColorMatrix type="matrix" values="0 0 0 0 .96  0 0 0 0 .97  0 0 0 0 .98  1 0 0 0 0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0 0 0 0 0 0 1 0 0 0 0 0 0 0"/></feComponentTransfer>
+    </filter>
+    <filter id="veinB" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0030 0.0021" numOctaves="3" seed="33"/>
+      <feComponentTransfer><feFuncR type="linear" slope="3.4" intercept="-1.2"/></feComponentTransfer>
+      <feColorMatrix type="matrix" values="0 0 0 0 .96  0 0 0 0 .97  0 0 0 0 .98  1 0 0 0 0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0 0 0 0 0 0 .8 0 0 0 0 0 0 0"/></feComponentTransfer>
+    </filter>
+    <filter id="veinD" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.002 0.0042" numOctaves="3" seed="52"/>
+      <feComponentTransfer><feFuncR type="linear" slope="3.4" intercept="-1.2"/></feComponentTransfer>
+      <feColorMatrix type="matrix" values="0 0 0 0 .08  0 0 0 0 .09  0 0 0 0 .1  1 0 0 0 0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0 0 0 0 0 0 1 0 0 0 0 0 0 0"/></feComponentTransfer>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="5"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.55"/>
+    </filter>
+  </defs>
+  <rect width="1400" height="1000" fill="url(#base)"/>
+  <rect width="1400" height="1000" filter="url(#cloud)" opacity=".55"/>
+  <rect width="1400" height="1000" filter="url(#veinD)" opacity=".5"/>
+  <rect width="1400" height="1000" filter="url(#veinB)" opacity=".45"/>
+  <rect width="1400" height="1000" filter="url(#veinA)" opacity=".6"/>
+  <rect width="1400" height="1000" filter="url(#grain)" opacity=".14"/>
+</svg>

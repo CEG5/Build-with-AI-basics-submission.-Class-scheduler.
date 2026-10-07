@@ -1,6 +1,6 @@
-/* forms.js - plus menu, create class, join class (add-item, class panel, end class come in later slices). */
+/* forms.js - plus menu, create and join, the class panel (schedule, add item, items, end class). */
 (function () {
-  var Forms = { onChange: function () {} };
+  var Forms = { onChange: function () {}, currentPanel: null };
   var modal = document.getElementById('modal');
 
   function esc(s) {
@@ -14,12 +14,12 @@
     if (!modal.open) modal.showModal();
   }
   function close() { if (modal.open) modal.close(); }
-  modal.addEventListener('close', function () { Forms.currentPanel = null; });
   Forms.open = open;
   Forms.close = close;
   Forms.esc = esc;
 
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+  modal.addEventListener('close', function () { Forms.currentPanel = null; });
 
   Forms.toast = function (text) {
     var t = document.getElementById('toast');
@@ -36,6 +36,63 @@
     }).join('') + '</div>';
   }
   Forms.swatches = swatches;
+
+  // ---- session editor: one row per weekly session (day, start, end, optional note), plus an add button ----
+  var Sessions = {
+    row: function (s) {
+      var opts = Time.DAY_LONG.map(function (n, i) { return '<option value="' + i + '"' + (i === s.day ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+      return '<div class="s-row">' +
+        '<select class="s-day" aria-label="Day">' + opts + '</select>' +
+        '<input type="time" class="s-start" aria-label="Starts" value="' + Time.toInput(s.startMin) + '">' +
+        '<span class="s-to">to</span>' +
+        '<input type="time" class="s-end" aria-label="Ends" value="' + Time.toInput(s.endMin) + '">' +
+        '<button type="button" class="s-del" aria-label="Remove this day">&times;</button>' +
+        '<input class="s-note" maxlength="24" placeholder="Note, e.g. Lecture or Lab (optional)" value="' + esc(s.note || '') + '">' +
+        '</div>';
+    },
+    html: function (sessions) {
+      return '<div class="s-list">' + sessions.map(Sessions.row).join('') + '</div>' +
+        '<button type="button" class="s-add">+ Add another day</button>';
+    },
+    wire: function (root) {
+      var list = root.querySelector('.s-list');
+      function sync() {
+        var rows = list.querySelectorAll('.s-row');
+        Array.prototype.forEach.call(rows, function (r) { r.querySelector('.s-del').hidden = rows.length < 2; });
+      }
+      root.querySelector('.s-add').addEventListener('click', function () {
+        var rows = list.querySelectorAll('.s-row');
+        var last = rows[rows.length - 1];
+        var s = { day: 0, startMin: 540, endMin: 640, note: '' };
+        if (last) { // start from the previous row: next day, same times
+          s.day = Math.min(4, parseInt(last.querySelector('.s-day').value, 10) + 1);
+          s.startMin = Time.parse(last.querySelector('.s-start').value) || s.startMin;
+          s.endMin = Time.parse(last.querySelector('.s-end').value) || s.endMin;
+        }
+        list.insertAdjacentHTML('beforeend', Sessions.row(s));
+        sync();
+      });
+      list.addEventListener('click', function (e) {
+        var del = e.target.closest('.s-del');
+        if (del && list.querySelectorAll('.s-row').length > 1) { del.closest('.s-row').remove(); sync(); }
+      });
+      sync();
+    },
+    // Returns {sessions} or {error}.
+    read: function (root) {
+      var out = [], rows = root.querySelectorAll('.s-row');
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var day = parseInt(r.querySelector('.s-day').value, 10);
+        var s = Time.parse(r.querySelector('.s-start').value), e = Time.parse(r.querySelector('.s-end').value);
+        if (isNaN(s) || isNaN(e)) return { error: 'Fill in the times for ' + Time.DAY_LONG[day] + '.' };
+        if (!(e > s)) return { error: 'On ' + Time.DAY_LONG[day] + ' the end time must be after the start time.' };
+        out.push({ day: day, startMin: s, endMin: e, note: r.querySelector('.s-note').value.trim() });
+      }
+      if (!out.length) return { error: 'Add at least one day.' };
+      return { sessions: out };
+    }
+  };
 
   // ---- plus menu ----
   var plusBtn = document.getElementById('plus-btn');
@@ -56,7 +113,7 @@
   Forms.joinForm = function () {
     open('<form method="dialog" class="form" id="join-form">' +
       '<h2>Join a class</h2>' +
-      '<label>Class code<input name="code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="e.g. K7Q2MX" required></label>' +
+      '<label>Class code<input name="code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="Enter the six-character code" required></label>' +
       '<p class="error" id="join-error" hidden></p>' +
       '<div class="actions"><button type="button" class="ghost" data-close>Cancel</button><button type="submit" class="primary">Join</button></div>' +
       '</form>');
@@ -75,102 +132,54 @@
 
   // ---- create ----
   Forms.createForm = function () {
-    function daysHtml(p, defStart, defEnd) {
-      return '<div class="day-rows">' + Time.DAY_NAMES.map(function (n, i) {
-        return '<div class="day-row" data-day="' + i + '"><label class="chip"><input type="checkbox" name="' + p + '-day" value="' + i + '"><span>' + n + '</span></label>' +
-          '<input type="time" name="' + p + '-start-' + i + '" value="' + defStart + '" disabled>' +
-          '<em>to</em>' +
-          '<input type="time" name="' + p + '-end-' + i + '" value="' + defEnd + '" disabled></div>';
-      }).join('') + '</div>';
-    }
     open('<form method="dialog" class="form" id="create-form">' +
       '<h2>Create a class</h2>' +
-      '<label>Class name<input name="name" maxlength="40" placeholder="Whatever you remember it by" required></label>' +
-      '<div class="field"><span class="lbl">Colour</span>' + swatches('colour', 'violet') + '</div>' +
-      '<label class="toggle"><input type="checkbox" name="forks"> <span>It has a lecture and a practical</span></label>' +
-      '<div id="fork-plain"><div class="field"><span class="lbl">Days and times</span>' + daysHtml('p0', '09:00', '10:40') + '</div></div>' +
-      '<div id="fork-split" hidden>' +
-        '<div class="fork-box"><div class="lbl big">Lecture</div>' +
-        '<label>Short note<input name="note-0" maxlength="20" placeholder="e.g. Lecture"></label>' + daysHtml('f0', '09:00', '10:40') + '</div>' +
-        '<div class="fork-box"><div class="lbl big">Practical</div>' +
-        '<label>Short note<input name="note-1" maxlength="20" placeholder="e.g. Lab"></label>' + daysHtml('f1', '13:00', '14:40') + '</div>' +
-      '</div>' +
+      '<label>Course title<input name="name" maxlength="40" placeholder="Course title" required></label>' +
+      '<div class="field"><span class="lbl">Colour</span>' + swatches('colour', 'sapphire') + '</div>' +
+      '<div class="field" id="schedule-field"><span class="lbl">Schedule</span>' +
+        Sessions.html([{ day: 0, startMin: 540, endMin: 640, note: '' }]) + '</div>' +
       '<p class="error" id="create-error" hidden></p>' +
       '<div class="actions"><button type="button" class="ghost" data-close>Cancel</button><button type="submit" class="primary">Create</button></div>' +
       '</form>');
     var form = document.getElementById('create-form');
     form.querySelector('[data-close]').addEventListener('click', close);
+    Sessions.wire(document.getElementById('schedule-field'));
     form.name.focus();
-
-    // a day's time boxes only work once the day is ticked
-    form.addEventListener('change', function (e) {
-      var t = e.target;
-      if (t.type === 'checkbox' && /-day$/.test(t.name)) {
-        var row = t.closest('.day-row');
-        Array.prototype.forEach.call(row.querySelectorAll('input[type=time]'), function (x) { x.disabled = !t.checked; });
-      }
-      if (t.name === 'forks') {
-        document.getElementById('fork-plain').hidden = t.checked;
-        document.getElementById('fork-split').hidden = !t.checked;
-      }
-    });
-
-    // Reads one group of day rows. Returns {days} or {error}.
-    function readDays(p) {
-      var out = [];
-      var boxes = form.querySelectorAll('input[name=' + p + '-day]:checked');
-      for (var i = 0; i < boxes.length; i++) {
-        var d = parseInt(boxes[i].value, 10);
-        var s = Time.parse(form.elements[p + '-start-' + d].value), en = Time.parse(form.elements[p + '-end-' + d].value);
-        if (isNaN(s) || isNaN(en)) return { error: 'Fill in the times for ' + Time.DAY_LONG[d] + '.' };
-        if (!(en > s)) return { error: 'On ' + Time.DAY_LONG[d] + ' the end time must be after the start time.' };
-        out.push({ day: d, startMin: s, endMin: en });
-      }
-      if (!out.length) return { error: 'Pick at least one day.' };
-      return { days: out };
-    }
-
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var err = document.getElementById('create-error');
       var name = form.name.value.trim();
-      if (!name) { err.textContent = 'Give the class a name.'; err.hidden = false; return; }
-      var forks = [];
-      if (form.elements.forks.checked) {
-        var labels = ['Lecture', 'Practical'];
-        for (var k = 0; k < 2; k++) {
-          var r = readDays('f' + k);
-          if (r.error) { err.textContent = labels[k] + ': ' + r.error; err.hidden = false; return; }
-          forks.push({ label: labels[k], note: form.elements['note-' + k].value.trim() || labels[k], days: r.days });
-        }
-      } else {
-        var r0 = readDays('p0');
-        if (r0.error) { err.textContent = r0.error; err.hidden = false; return; }
-        forks.push({ label: '', note: '', days: r0.days });
-      }
-      var cls = Store.createClass({ name: name, colour: form.querySelector('input[name=colour]:checked').value, forks: forks });
+      if (!name) { err.textContent = 'Enter the course title.'; err.hidden = false; return; }
+      var r = Sessions.read(document.getElementById('schedule-field'));
+      if (r.error) { err.textContent = r.error; err.hidden = false; return; }
+      var cls = Store.createClass({ name: name, colour: form.querySelector('input[name=colour]:checked').value, sessions: r.sessions });
       Forms.showCode(cls);
       Forms.onChange({ created: cls.id });
     });
   };
 
   Forms.showCode = function (cls) {
-    open('<div class="form"><h2>Class created</h2><p>Share this code with your classmates:</p>' +
+    open('<div class="form"><h2>Class created</h2><p class="muted">Share this code with your classmates.</p>' +
       '<div class="code-big" id="code-big">' + esc(cls.code) + '</div>' +
       '<div class="actions"><button type="button" class="primary" data-close>Done</button></div></div>');
     modal.querySelector('[data-close]').addEventListener('click', close);
   };
 
-  // ---- class panel (add item here; delete item / end class are added in a later slice) ----
+  // ---- class panel ----
   Forms.classPanel = function (classId) {
     var cls = Store.classById(classId);
     if (!cls) { close(); return; }
     var isAuthor = Store.roleOf(classId) === 'author';
     Forms.currentPanel = null;
     var html = '<div class="form panel-form"><h2>' + esc(cls.name) + '</h2>' +
-      '<p class="muted">Code: <b class="code-inline">' + esc(cls.code) + '</b> • ' + (isAuthor ? "You're the rep" : "You're a member") + '</p>';
+      '<p class="muted">Code <b class="code-inline">' + esc(cls.code) + '</b> · ' + (isAuthor ? "You're the rep" : "You're a member") + '</p>';
     html += '<div class="field"><span class="lbl">Your colour (only changes it for you)</span>' + swatches('mycolour', (Store.me().memberships[classId] || {}).colour || cls.colour) + '</div>';
-    if (isAuthor) html += Forms.itemFormHtml();
+    if (isAuthor) {
+      html += '<div class="section" id="schedule-section"><div class="lbl big">Schedule</div>' + Sessions.html(Store.sessionsOf(cls)) +
+        '<p class="error" id="schedule-error" hidden></p>' +
+        '<div class="actions"><button type="button" class="ghost" id="save-schedule">Save schedule</button></div></div>';
+      html += Forms.itemFormHtml(cls);
+    }
     html += '<div id="panel-items"></div>';
     html += '<div class="actions">' + (isAuthor ? '<button type="button" class="danger" id="end-class">End class</button>' : '') +
       '<button type="button" class="ghost" data-close>Close</button></div></div>';
@@ -182,6 +191,17 @@
       Forms.onChange({ recoloured: classId });
     });
     if (isAuthor) {
+      var sec = document.getElementById('schedule-section');
+      Sessions.wire(sec);
+      document.getElementById('save-schedule').addEventListener('click', function () {
+        var err = document.getElementById('schedule-error');
+        var r = Sessions.read(sec);
+        if (r.error) { err.textContent = r.error; err.hidden = false; return; }
+        err.hidden = true;
+        Store.updateClass(classId, { sessions: r.sessions });
+        Forms.onChange({ scheduleChanged: classId });
+        Forms.toast('Schedule saved.');
+      });
       Forms.wireItemForm(classId);
       document.getElementById('end-class').addEventListener('click', function () { Forms.confirmEnd(classId); });
     }
@@ -212,7 +232,7 @@
     var items = (cls.items || []).slice().sort(function (a, b) { return a.weekNo - b.weekNo || a.day - b.day || a.startMin - b.startMin; });
     if (!items.length) { el.innerHTML = '<p class="muted">No items yet.</p>'; return; }
     el.innerHTML = '<div class="lbl">Items</div><ul class="item-list">' + items.map(function (it) {
-      return '<li><span><b>' + esc(DayView.itemName(it)) + '</b> • week ' + it.weekNo + ', ' + Time.DAY_NAMES[it.day] + ' ' + Time.fmt(it.startMin) + '</span>' +
+      return '<li><span><b>' + esc(DayView.itemName(it)) + '</b> · week ' + it.weekNo + ', ' + Time.DAY_NAMES[it.day] + ' ' + Time.fmt(it.startMin) + '</span>' +
         (isAuthor ? '<button type="button" class="del" data-item="' + it.id + '" aria-label="Delete item">&times;</button>' : '') + '</li>';
     }).join('') + '</ul>';
     Array.prototype.forEach.call(el.querySelectorAll('.del'), function (b) {
@@ -224,17 +244,21 @@
     });
   };
 
-  Forms.itemFormHtml = function () {
-    var dayOpts = Time.DAY_LONG.map(function (n, i) { return '<option value="' + i + '">' + n + '</option>'; }).join('');
-    return '<form id="item-form" class="item-form">' +
+  // ---- add item ----
+  Forms.itemFormHtml = function (cls) {
+    var sessions = Store.sessionsOf(cls);
+    var first = sessions[0] || { day: 0, startMin: 540 };
+    var dayOpts = Time.DAY_LONG.map(function (n, i) { return '<option value="' + i + '"' + (i === first.day ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+    return '<form id="item-form" class="item-form section">' +
       '<div class="lbl big">Add an item</div>' +
       '<div class="row"><label>Type<select name="type"><option value="quiz">Quiz</option><option value="midterm">Midterm</option>' +
       '<option value="final">Final</option><option value="other">Other</option></select></label>' +
       '<label>Week<input type="number" name="week" min="1" max="60" value="' + WeekNav.viewedWeek() + '" required></label></div>' +
       '<div class="row"><label>Day<select name="day">' + dayOpts + '</select></label>' +
-      '<label>Time<input type="time" name="time" value="09:00" required></label></div>' +
+      '<label>Time<input type="time" name="time" value="' + Time.toInput(first.startMin) + '" required></label></div>' +
+      '<p class="hint" id="day-hint" hidden>There is no class on this day, so the item will appear on its own.</p>' +
       '<label id="title-wrap" hidden>Title<input name="title" maxlength="40" placeholder="e.g. Expo"></label>' +
-      '<label id="desc-wrap">Description<textarea name="desc" rows="2" maxlength="200" placeholder="Material covered, details..."></textarea></label>' +
+      '<label id="desc-wrap">Description<textarea name="desc" rows="2" maxlength="200" placeholder="Material covered, details"></textarea></label>' +
       '<div class="field" id="imp-wrap"><span class="lbl">How important is it?</span>' +
       '<div class="slider-wrap"><input type="range" name="importance" min="0" max="100" value="40">' +
       '<div class="marker" style="left:44.4%"><i></i><span>typical midterm</span></div></div>' +
@@ -251,7 +275,16 @@
       document.getElementById('title-wrap').hidden = t !== 'other';
       document.getElementById('desc-wrap').hidden = t === 'midterm' || t === 'final';
     }
+    // Picking a day fills in that day's class time, so the item lines up with the class by default.
+    function syncDay() {
+      var cls = Store.classById(classId);
+      var day = parseInt(form.day.value, 10), match = null;
+      Store.sessionsOf(cls).forEach(function (s) { if (!match && s.day === day) match = s; });
+      if (match) form.time.value = Time.toInput(match.startMin);
+      document.getElementById('day-hint').hidden = !!match;
+    }
     form.type.addEventListener('change', sync);
+    form.day.addEventListener('change', syncDay);
     sync();
     form.addEventListener('submit', function (e) {
       e.preventDefault();

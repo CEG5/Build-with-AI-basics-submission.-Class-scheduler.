@@ -1,4 +1,4 @@
-/* carve.js - colour helpers and (from slice 2) the carve shape. */
+/* carve.js - colour helpers and the carve shape (fills a class block from its bottom-right corner). */
 (function () {
   var Carve = {};
 
@@ -49,15 +49,18 @@
     return hslToHex((hsl[0] + 0.5) % 1, hsl[1], hsl[2]);
   };
 
-  // ---- the carve itself ----
-  // A piece is an organic blob whose top edge sits on the item's start-time line. Its size is fitted
-  // (binary search on the scale) so the part inside the block covers the target fraction of the block.
-  // The block is drawn with the blob subtracted via an SVG <mask>; the blob is drawn in the complement colour.
+  // ---- the carve ----
+  // The carve fills a class block starting from its bottom-right corner. Think of the block as four quarters:
+  // the bottom-right quarter fills first (up to 25%); anything more spills into the quarter above it (midterms,
+  // finals and some quizzes) or the quarter to its left (other quizzes). The piece is a squarish shape with
+  // softened corners and a slight wobble, not a clean cut. Its depth is fitted so the part inside the block
+  // covers the target fraction of the block. The block is drawn with the piece subtracted via an SVG <mask>;
+  // the piece is drawn in the complement colour.
 
   Carve.fractionOf = function (item) {
     if (item.type === 'midterm') return 1 / 3;
     if (item.type === 'final') return 1 / 2;
-    var imp = Math.max(0, Math.min(1, item.importance === undefined ? 0.3 : item.importance));
+    var imp = Math.max(0, Math.min(1, item.importance === undefined || item.importance === null ? 0.3 : item.importance));
     return 0.2 + imp * 0.3; // quiz / other: 20% .. 50%
   };
 
@@ -73,21 +76,34 @@
     };
   }
 
-  var N_POINTS = 16;
-  var TOP_INDEX = N_POINTS * 3 / 4; // the point straight up (angle -90 degrees)
-  var SQUARENESS = 4; // 2 = ellipse; higher = more rectangular (a rounded rectangle)
+  // Midterms and finals always grow up the right side. Quizzes and others pick up or left, stable per item.
+  Carve.orientation = function (item) {
+    if (item.type === 'midterm' || item.type === 'final') return 'up';
+    return seededRandom('o' + (item.id || 'x'))() < 0.5 ? 'up' : 'left';
+  };
 
-  // ~12 points around an ellipse with seeded radius wobble (stable per item id).
-  function basePoints(seedKey, aspect) {
+  // Rectangle (as fractions of the block) anchored at the bottom-right with area phi, filling the
+  // bottom-right quarter first and then growing in one direction.
+  function dims(phi, orient) {
+    var a, b;
+    if (phi <= 0.25) { a = b = Math.sqrt(phi); }
+    else if (orient === 'up') { if (phi <= 0.5) { a = 0.5; b = phi / 0.5; } else { b = 1; a = phi; } }
+    else { if (phi <= 0.5) { b = 0.5; a = phi / 0.5; } else { a = 1; b = phi; } }
+    return { a: Math.min(a, 1), b: Math.min(b, 1) };
+  }
+
+  var N_POINTS = 32;       // points around the shape (a superellipse centred on the block's bottom-right corner)
+  var SQUARENESS = 5;      // 2 = ellipse; higher = more square
+  var WOBBLE = 0.05;       // gentle, smooth unevenness (a shallow bulge along the edges) so it is not a clean cut
+
+  function basePoints(seedKey) {
     var rnd = seededRandom(String(seedKey));
-    var pts = [];
+    var ph1 = rnd() * 6.28, ph2 = rnd() * 6.28;
+    var pts = [], e = 2 / SQUARENESS;
     for (var i = 0; i < N_POINTS; i++) {
       var th = (i / N_POINTS) * Math.PI * 2;
-      var r = 0.93 + rnd() * 0.14;
-      if (i === TOP_INDEX) r = 1;         // the point at the very top sits exactly on the start-time line
-      if (i === TOP_INDEX - 1 || i === TOP_INDEX + 1) r = Math.min(r, 1); // so the shoulders never rise above it
-      var c = Math.cos(th), sn = Math.sin(th), e = 2 / SQUARENESS;
-      pts.push([(c < 0 ? -1 : 1) * Math.pow(Math.abs(c), e) * r * aspect, (sn < 0 ? -1 : 1) * Math.pow(Math.abs(sn), e) * r]);
+      var c = Math.cos(th), s = Math.sin(th);
+      pts.push([(c < 0 ? -1 : 1) * Math.pow(Math.abs(c), e), (s < 0 ? -1 : 1) * Math.pow(Math.abs(s), e), 1 + WOBBLE * (Math.sin(2 * th + ph1) * 0.7 + Math.sin(3 * th + ph2) * 0.4)]);
     }
     return pts;
   }
@@ -108,8 +124,8 @@
   function polygon(pts) {
     var poly = [];
     segments(pts).forEach(function (s) {
-      for (var k = 0; k < 8; k++) {
-        var t = k / 8, u = 1 - t;
+      for (var k = 0; k < 6; k++) {
+        var t = k / 6, u = 1 - t;
         poly.push([
           u * u * u * s[0][0] + 3 * u * u * t * s[1][0] + 3 * u * t * t * s[2][0] + t * t * t * s[3][0],
           u * u * u * s[0][1] + 3 * u * u * t * s[1][1] + 3 * u * t * t * s[2][1] + t * t * t * s[3][1]
@@ -138,29 +154,29 @@
     return c;
   }
 
-  var GRID = 36;
+  var GRID = 40;
   var cache = {};
 
-  // g = {x,y,w,h}: the block rectangle. y0 = the start-time line (absolute y). Returns {d, scale, coverage}.
-  Carve.fit = function (g, y0, item) {
-    var fraction = Carve.fractionOf(item);
-    var key = [item.id, g.x.toFixed(1), g.y.toFixed(1), g.w.toFixed(1), g.h.toFixed(1), y0.toFixed(1), fraction.toFixed(3)].join('|');
+  // g = {x,y,w,h}: the block rectangle. items = the items carved from this block (their fractions add up,
+  // capped). Returns {d, coverage, target}.
+  Carve.fit = function (g, items) {
+    var fraction = 0;
+    items.forEach(function (it) { fraction += Carve.fractionOf(it); });
+    fraction = Math.min(fraction, 0.85);
+    var lead = items[0];
+    var orient = Carve.orientation(lead);
+    var key = [lead.id, items.length, g.x.toFixed(1), g.y.toFixed(1), g.w.toFixed(1), g.h.toFixed(1), fraction.toFixed(3), orient].join('|');
     if (cache[key]) return cache[key];
 
-    // The piece spans the block's width (a small margin each side, like a pocket cut into it); only its
-    // depth changes to fit the target area. Rounded, slightly uneven corners keep it fluid.
-    var hw = Math.max(8, g.w / 2 - 5);
-    var base = basePoints(item.id || 'x', 1);
-    var poly0 = polygon(base);
-    var ymin = Infinity;
-    poly0.forEach(function (p) { if (p[1] < ymin) ymin = p[1]; });
-    var cx = g.x + g.w / 2;
+    var base = basePoints(lead.id || 'x');
+    var cx = g.x + g.w, cy = g.y + g.h; // bottom-right corner of the block
 
-    function place(s) {
-      return base.map(function (p) { return [cx + hw * p[0], y0 + s * (p[1] - ymin)]; });
+    function place(phi) {
+      var d = dims(phi, orient), A = d.a * g.w, B = d.b * g.h;
+      return base.map(function (p) { return [cx + A * p[0] * p[2], cy + B * p[1] * p[2]]; });
     }
-    function coverage(s) {
-      var poly = polygon(place(s)), hit = 0;
+    function coverage(phi) {
+      var poly = polygon(place(phi)), hit = 0;
       for (var i = 0; i < GRID; i++) {
         for (var j = 0; j < GRID; j++) {
           if (inside(poly, g.x + (i + 0.5) / GRID * g.w, g.y + (j + 0.5) / GRID * g.h)) hit++;
@@ -169,86 +185,80 @@
       return hit / (GRID * GRID);
     }
 
-    // Scan upward for the first scale that reaches the target, then refine. Scanning (not a plain
-    // binary search) keeps this correct even if coverage is not perfectly monotonic.
-    var hi = g.h * 3, steps = 40, prev = 1, found = -1, best = 1, bestCov = -1;
-    for (var k = 0; k <= steps; k++) {
-      var sk = 1 * Math.pow(hi, k / steps);
-      var ck = coverage(sk);
-      if (ck > bestCov) { bestCov = ck; best = sk; }
-      if (ck >= fraction) { found = k; break; }
-      prev = sk;
-    }
-    var s;
-    if (found < 0) { s = best; }               // clipped by the block edge: falls short of target (accepted)
+    var lo = 0.01, hi = 1, phi;
+    if (coverage(hi) <= fraction) { phi = hi; }
     else {
-      var lo2 = prev, hi2 = 1 * Math.pow(hi, found / steps);
-      for (var it = 0; it < 22; it++) {
-        var mid = (lo2 + hi2) / 2;
-        if (coverage(mid) < fraction) lo2 = mid; else hi2 = mid;
+      for (var it = 0; it < 24; it++) {
+        var mid = (lo + hi) / 2;
+        if (coverage(mid) < fraction) lo = mid; else hi = mid;
       }
-      s = (lo2 + hi2) / 2;
+      phi = (lo + hi) / 2;
     }
-    var res = { d: pathOf(place(s)), scale: s, coverage: coverage(s), target: fraction };
+    var res = { d: pathOf(place(phi)), coverage: coverage(phi), target: fraction, orient: orient };
     cache[key] = res;
     return res;
   };
 
   function esc(str) { return String(str).replace(/[^A-Za-z0-9_-]/g, '_'); }
 
-  // Does the item's start time sit inside this block's time range?
-  Carve.inBlock = function (item, startMin, endMin) {
-    return item.startMin >= startMin && item.startMin < endMin;
-  };
-
-  // Carves for one block. g = block rect in the target svg; startMin/endMin = the block's time range.
-  // Returns {defs, maskId, carves}; maskId is '' when no item belongs to this block.
-  Carve.blockCarves = function (g, startMin, endMin, items, colour, id) {
-    var mine = items.filter(function (it) { return Carve.inBlock(it, startMin, endMin); });
-    if (!mine.length) return { defs: '', maskId: '', carves: '', count: 0 };
-    var comp = Carve.complement(colour);
-    var maskId = 'm-' + esc(id), clipId = 'k-' + esc(id);
-    var dur = endMin - startMin;
-    var holes = '', pieces = '';
-    mine.forEach(function (it) {
-      var y0 = g.y + ((it.startMin - startMin) / dur) * g.h;
-      var f = Carve.fit(g, y0, it);
-      holes += '<path d="' + f.d + '" fill="black"/>';
-      pieces += '<path d="' + f.d + '" fill="' + comp + '" class="carve-piece" clip-path="url(#' + clipId + ')" data-item="' + esc(it.id) +
-                '" data-coverage="' + f.coverage.toFixed(3) + '"/>';
+  // Which session (class block) an item is carved from: the session that day containing its time, otherwise
+  // the closest session that day. Items on a day with no session are returned as orphans.
+  Carve.assignItems = function (sessions, items) {
+    var bySession = {}, orphans = [];
+    items.forEach(function (it) {
+      var best = -1, bestDist = Infinity;
+      sessions.forEach(function (s, i) {
+        if (s.day !== it.day) return;
+        var dist = it.startMin >= s.startMin && it.startMin < s.endMin ? 0 :
+          Math.min(Math.abs(it.startMin - s.startMin), Math.abs(it.startMin - s.endMin));
+        if (dist < bestDist) { bestDist = dist; best = i; }
+      });
+      if (best < 0) orphans.push(it);
+      else (bySession[best] = bySession[best] || []).push(it);
     });
+    return { bySession: bySession, orphans: orphans };
+  };
+
+  // Mask + piece for one block. Returns {defs, maskId, carves}; maskId is '' when there is nothing to carve.
+  Carve.blockCarves = function (g, items, colour, id) {
+    if (!items || !items.length) return { defs: '', maskId: '', carves: '', count: 0 };
+    var f = Carve.fit(g, items);
+    var comp = Carve.complement(colour);
+    var maskId = 'm-' + esc(id), clipId = 'k-' + esc(id), rx = g.rx === undefined ? 3 : g.rx;
     var defs = '<mask id="' + maskId + '" maskUnits="userSpaceOnUse" x="' + (g.x - 2) + '" y="' + (g.y - 2) + '" width="' + (g.w + 4) + '" height="' + (g.h + 4) + '">' +
-               '<rect x="' + (g.x - 2) + '" y="' + (g.y - 2) + '" width="' + (g.w + 4) + '" height="' + (g.h + 4) + '" fill="white"/>' + holes + '</mask>' +
-               '<clipPath id="' + clipId + '"><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="10"/></clipPath>';
-    return { defs: defs, maskId: maskId, carves: pieces, count: mine.length };
+               '<rect x="' + (g.x - 2) + '" y="' + (g.y - 2) + '" width="' + (g.w + 4) + '" height="' + (g.h + 4) + '" fill="white"/>' +
+               '<path d="' + f.d + '" fill="black"/></mask>' +
+               '<clipPath id="' + clipId + '"><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="' + rx + '"/></clipPath>';
+    var piece = '<path d="' + f.d + '" fill="' + comp + '" class="carve-piece" clip-path="url(#' + clipId + ')" data-item="' + esc(items[0].id) +
+                '" data-coverage="' + f.coverage.toFixed(3) + '" data-orient="' + f.orient + '"/>';
+    return { defs: defs, maskId: maskId, carves: piece, count: items.length };
   };
 
-  Carve.forBlock = function (g, b, items, colour, id) {
-    return Carve.blockCarves(g, b.startMin, b.endMin, items, colour, id);
+  // An item on a day with no class: carved alone on a dashed reference block (a 100-minute block at column width).
+  Carve.orphan = function (g, item, colour) {
+    var f = Carve.fit(g, [item]);
+    var clipId = 'ko-' + esc(item.id);
+    return '<clipPath id="' + clipId + '"><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3"/></clipPath>' +
+      '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3" class="orphan-ref"/>' +
+      '<path d="' + f.d + '" fill="' + Carve.complement(colour) + '" class="carve-piece orphan" clip-path="url(#' + clipId + ')" data-item="' + esc(item.id) +
+      '" data-coverage="' + f.coverage.toFixed(3) + '"/>';
   };
 
-  // An item whose time is outside every class block: drawn alone on a reference area (100-minute block at column width).
-  Carve.orphan = function (g, y0, item, colour) {
-    var f = Carve.fit(g, y0, item);
-    return '<path d="' + f.d + '" fill="' + Carve.complement(colour) + '" class="carve-piece orphan" data-item="' + esc(item.id) +
-           '" data-coverage="' + f.coverage.toFixed(3) + '"/>';
+  // Gem-like body colour: a little lighter on top, darker at the bottom.
+  Carve.gemStops = function (hex) {
+    return '<stop offset="0" stop-color="' + Carve.shade(hex, 0.07) + '"/><stop offset="1" stop-color="' + Carve.shade(hex, -0.1) + '"/>';
   };
 
-  // Mini block with its carves, for a day card.
-  Carve.cardSvg = function (c, items, colour, id) {
-    var dur = c.d.endMin - c.d.startMin;
-    var H = Math.max(60, Math.min(130, dur * 0.7));
-    var g = { x: 0, y: 0, w: 300, h: H };
-    var res = Carve.blockCarves(g, c.d.startMin, c.d.endMin, items, colour, id);
-    var fill = c.forks > 1 ? 'url(#cf-' + esc(id) + ')' : colour;
-    var grad = c.forks > 1
-      ? '<linearGradient id="cf-' + esc(id) + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' +
-        Carve.shade(colour, c.fi % 2 === 0 ? -0.18 : 0.18) + '"/><stop offset="1" stop-color="' +
-        Carve.shade(colour, c.fi % 2 === 0 ? 0.18 : -0.18) + '"/></linearGradient>'
-      : '';
-    return '<svg viewBox="0 0 300 ' + H + '" width="100%" class="card-svg"><defs>' + grad + res.defs + '</defs>' +
-      '<rect x="0" y="0" width="300" height="' + H + '" rx="16" fill="' + fill + '"' + (res.maskId ? ' mask="url(#' + res.maskId + ')"' : '') + ' stroke="rgba(0,0,0,.25)"/>' +
-      res.carves + '</svg>';
+  // A small block with its carve, for a day card. dur = the session length in minutes.
+  Carve.cardSvg = function (dur, items, colour, id) {
+    var W = 120, H = Math.max(44, Math.min(84, dur * 0.55));
+    var g = { x: 1, y: 1, w: W, h: H, rx: 3 };
+    var res = Carve.blockCarves(g, items, colour, id);
+    var gid = 'cg-' + esc(id);
+    return '<svg viewBox="0 0 ' + (W + 2) + ' ' + (H + 2) + '" width="' + (W + 2) + '" height="' + (H + 2) + '" class="card-svg">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' + Carve.gemStops(colour) + '</linearGradient>' + res.defs + '</defs>' +
+      '<rect x="' + g.x + '" y="' + g.y + '" width="' + W + '" height="' + H + '" rx="3" fill="url(#' + gid + ')"' +
+      (res.maskId ? ' mask="url(#' + res.maskId + ')"' : '') + '/>' + res.carves + '</svg>';
   };
 
   window.Carve = Carve;

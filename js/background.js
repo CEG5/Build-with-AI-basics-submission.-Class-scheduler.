@@ -1,36 +1,47 @@
-/* background.js - the living background: rounded blocks drift, rise and fall like time passing at university.
-   Once the window has classes they ease into one calm, interlocking grid. */
+/* background.js - the living background: matte grey blocks of different shapes and sizes drift, rise and fall.
+   Once the window has classes they settle into one calm, interlocking grid. */
 (function () {
   var canvas = document.getElementById('bg');
   var ctx = canvas.getContext && canvas.getContext('2d');
-  var CELL_W = 96, CELL_H = 60, GAP = 6;
-  var PALETTE = ['#163832', '#235347', '#1b4339', '#2d6a5a', '#8EB69B', '#0f302b'];
+  var GAP = 3;
+  // matte greys, with a few cool, warm and green-grey tints for variety
+  var PALETTE = ['#1f2225', '#272b2f', '#2f3439', '#383e44', '#444b52', '#2b3440', '#3a3633', '#2d3733', '#33303a', '#4a525a'];
+  var ROW_H = [34, 46, 60, 60, 84, 110];
+  var COL_W = [52, 70, 70, 96, 130, 170];
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var blocks = [], calm = false, W = 0, H = 0, cols = 0, rows = 0, last = 0, ease = 0; // ease: 0 = drifting, 1 = grid
+  var blocks = [], calm = false, W = 0, H = 0, last = 0, ease = 0; // ease: 0 = drifting, 1 = grid
 
   function rand(a, b) { return a + Math.random() * (b - a); }
+  function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
 
   function resize() {
     var dpr = window.devicePixelRatio || 1;
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = W * dpr; canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cols = Math.ceil(W / CELL_W) + 1; rows = Math.ceil(H / CELL_H) + 1;
-    var n = Math.min(cols * rows, 900);
-    blocks = [];
-    for (var i = 0; i < n; i++) {
-      var col = i % cols, row = Math.floor(i / cols);
-      var w = rand(44, 120), h = rand(26, 74);
-      blocks.push({
-        x: rand(0, W), y: rand(0, H), w: w, h: h, fw: w, fh: h,
-        vx: rand(-6, 6), vy: rand(-22, 22), // px per second: some rise, some fall
-        colour: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-        alpha: rand(0.35, 0.8),
-        gx: col * CELL_W + GAP / 2, gy: row * CELL_H + GAP / 2,
-        gc: PALETTE[(col + row * 2) % PALETTE.length]
-      });
+
+    // The calm layout: rows of different heights, each filled with blocks of different widths.
+    var cells = [], y = 0;
+    while (y < H) {
+      var rh = pick(ROW_H), x = 0;
+      while (x < W) {
+        var cw = pick(COL_W);
+        if (W - x - cw < 40) cw = W - x;
+        cells.push({ x: x, y: y, w: cw, h: rh });
+        x += cw;
+      }
+      y += rh;
     }
+    blocks = cells.slice(0, 1400).map(function (c) {
+      var k = rand(0.75, 1.3);
+      return {
+        x: rand(-40, W), y: rand(-40, H), w: c.w * k, h: c.h * rand(0.75, 1.3),
+        vx: rand(-5, 5), vy: rand(-20, 20), // px per second: some rise, some fall
+        colour: pick(PALETTE), alpha: rand(0.45, 0.95),
+        cell: c
+      };
+    });
   }
 
   function roundRect(x, y, w, h, r) {
@@ -39,47 +50,38 @@
     ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
     ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
-
   function mix(a, b, t) { return a + (b - a) * t; }
 
   function frame(now) {
     var dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
-    // ease the whole field toward the grid (or away from it)
-    var target = calm ? 1 : 0;
-    ease += (target - ease) * Math.min(1, dt * 1.6);
+    ease += ((calm ? 1 : 0) - ease) * Math.min(1, dt * 1.6);
     ctx.clearRect(0, 0, W, H);
     var speed = reduce ? 0.25 : 1;
     for (var i = 0; i < blocks.length; i++) {
-      var b = blocks[i];
+      var b = blocks[i], c = b.cell;
       b.x += b.vx * dt * speed * (1 - ease);
       b.y += b.vy * dt * speed * (1 - ease);
-      if (b.x < -130) b.x = W + 10; if (b.x > W + 130) b.x = -10;
-      if (b.y < -90) b.y = H + 10; if (b.y > H + 90) b.y = -10;
-      // while calm the free position also relaxes to the grid cell so the change is smooth both ways
-      var gw = CELL_W - GAP, gh = CELL_H - GAP;
-      var x = mix(b.x, b.gx, ease), y = mix(b.y, b.gy, ease);
-      var w = mix(b.w, gw, ease), h = mix(b.h, gh, ease);
-      if (calm) { b.x += (b.gx - b.x) * Math.min(1, dt * 0.8); b.y += (b.gy - b.y) * Math.min(1, dt * 0.8); }
-      ctx.globalAlpha = mix(b.alpha * 0.55, 0.5, ease);
-      ctx.fillStyle = ease > 0.5 ? b.gc : b.colour;
-      roundRect(x, y, w, h, 10); ctx.fill();
-      // a soft top highlight and two studs, like a building block
+      if (b.x < -180) b.x = W + 10; if (b.x > W + 180) b.x = -10;
+      if (b.y < -120) b.y = H + 10; if (b.y > H + 120) b.y = -10;
+      var x = mix(b.x, c.x + GAP / 2, ease), y = mix(b.y, c.y + GAP / 2, ease);
+      var w = mix(b.w, c.w - GAP, ease), h = mix(b.h, c.h - GAP, ease);
+      ctx.globalAlpha = mix(b.alpha * 0.7, 0.9, ease);
+      ctx.fillStyle = b.colour;
+      roundRect(x, y, w, h, 3); ctx.fill();
+      // a hairline highlight on the top edge: a raised, machined edge
       ctx.globalAlpha *= 0.5;
-      ctx.fillStyle = 'rgba(218,241,222,.35)';
-      ctx.beginPath(); ctx.arc(x + 14, y + 11, 3, 0, 6.2832); ctx.arc(x + 28, y + 11, 3, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.18)';
+      ctx.fillRect(x + 2, y, Math.max(0, w - 4), 1);
     }
     ctx.globalAlpha = 1;
     requestAnimationFrame(frame);
   }
 
-  var Background = {
-    setCalm: function (isCalm) { calm = !!isCalm; }
-  };
+  window.Background = { setCalm: function (isCalm) { calm = !!isCalm; } };
 
   if (ctx) {
     resize();
     window.addEventListener('resize', resize);
     requestAnimationFrame(frame);
   }
-  window.Background = Background;
 })();

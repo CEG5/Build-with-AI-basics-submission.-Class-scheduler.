@@ -1,123 +1,98 @@
-/* effects.css - glows, carve styling, animations (grows in later slices) */
-.carve-piece { stroke: rgba(255,255,255,.35); stroke-width: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,.35)); }
-.card-svg { display: block; overflow: visible; }
+/* effects.css - the material: matte granite floor, a thick raised marble rim, a slight tilt, and the pop.
+   Light comes from the top left. */
 
-/* week-navigation edge clouds: a soft nebula that appears when the mouse nears the edge */
-.edge-cloud {
-  position: fixed; top: 0; bottom: 0; width: min(140px, 12vw); z-index: 3; display: flex; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity .35s ease; cursor: pointer; color: var(--g5); font-size: 54px;
-}
-.edge-cloud.left { left: 0; justify-content: flex-start; padding-left: 16px;
-  background: radial-gradient(90% 55% at 0% 50%, rgba(142,182,155,.55), rgba(35,83,71,.25) 55%, transparent 80%); }
-.edge-cloud.right { right: 0; justify-content: flex-end; padding-right: 16px;
-  background: radial-gradient(90% 55% at 100% 50%, rgba(142,182,155,.55), rgba(35,83,71,.25) 55%, transparent 80%); }
-.edge-cloud.show { opacity: 1; pointer-events: auto; }
-.up-empty { opacity: .8; }
-.week-label { cursor: pointer; }
-
-/* ===== Material: granite, brushed metal, glass. Clean, smooth, professional. ===== */
+/* ---- floor: matte graphite with a fine granite grain ---- */
 body {
-  background-color: var(--g0);
+  background-color: var(--bg);
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .56 0 0 0 0 .78 0 0 0 0 .65 2.4 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E"),
-    radial-gradient(120% 90% at 20% 0%, #123830 0%, transparent 60%),
-    radial-gradient(100% 80% at 90% 100%, #0d332d 0%, transparent 55%),
-    linear-gradient(160deg, #061f20, #04181a);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .82 0 0 0 0 .85 2.4 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E"),
+    radial-gradient(110% 90% at 30% 0%, #1b1e21 0%, transparent 65%),
+    linear-gradient(170deg, #15171a, #0f1012);
 }
 
+
+/* ---- the slab: a thick marble rim extruded up around a recessed floor ---- */
 .panel {
-  background: linear-gradient(155deg, rgba(48,98,85,.46), rgba(8,34,30,.66));
-  backdrop-filter: blur(24px) saturate(1.35);
-  -webkit-backdrop-filter: blur(24px) saturate(1.35);
-  border: 1px solid rgba(218,241,222,.22);
-  box-shadow: 0 34px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.45);
+  background: url("marble.svg") center / cover no-repeat, #5d6269;
+  border-radius: 6px;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.6),          /* lit top-left edge of the rim */
+    inset 3px 3px 6px rgba(255,255,255,.14),
+    inset -1px -1px 0 rgba(0,0,0,.65),             /* shaded bottom-right edge */
+    inset -4px -4px 8px rgba(0,0,0,.35),
+    0 1px 0 #454a50, 0 2px 0 #3d4248, 0 3px 0 #353a3f, 0 4px 0 #2e3237, 0 5px 0 #272b30, 0 6px 0 #212428, /* the rim's side wall */
+    0 28px 50px rgba(0,0,0,.55), 0 60px 110px rgba(0,0,0,.45);
 }
-/* a thin brushed-metal highlight along the top edge, and soft nebula glows inside the glass */
-.panel::before {
-  content: ""; position: absolute; left: 34px; right: 34px; top: -1px; height: 2px; border-radius: 2px; pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55) 30%, rgba(190,210,200,.35) 60%, transparent);
-}
-.panel::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+.panel-inner {
+  border-radius: 3px;
   background:
-    radial-gradient(40% 35% at 12% 8%, rgba(46,230,214,.10), transparent 70%),
-    radial-gradient(38% 34% at 92% 92%, rgba(142,182,155,.14), transparent 70%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.2 0 0 0 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E"),
+    var(--stone-1);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.75),                      /* the inner wall of the rim */
+    1px 1px 0 1px rgba(255,255,255,.16),            /* inner lip catching the light, bottom-right */
+    inset 12px 14px 26px rgba(0,0,0,.55),           /* shadow the rim casts onto the floor */
+    inset -3px -3px 10px rgba(255,255,255,.035);
 }
-.day-section, .week-section {
-  background: linear-gradient(180deg, rgba(5,31,32,.42), rgba(5,31,32,.55));
-  border: 1px solid rgba(218,241,222,.07);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), inset 0 10px 30px rgba(0,0,0,.18);
-}
-.upcoming { border: 1px solid rgba(218,241,222,.08); }
 
-/* brushed-metal controls */
-.week-indicator, .nav-btn, .day-tab, .plus-menu button, .ghost {
-  background: linear-gradient(180deg, #3e6657 0%, #26493e 55%, #1f3f35 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 2px 0 rgba(0,0,0,.4);
-  color: var(--g5);
-}
-.week-indicator:hover, .nav-btn:hover, .plus-menu button:hover, .ghost:hover { background: linear-gradient(180deg, #4b7867, #2f5a4c); }
-.day-tab.active, .primary {
-  background: linear-gradient(180deg, #d4e8da 0%, #9fc1ad 55%, #82a794 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 2px 0 rgba(0,0,0,.4);
-  color: #07201c;
-}
-.danger { background: linear-gradient(180deg, #ef6a66, #c13733); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.4); }
+/* ---- surfaces inside ---- */
+.day-section, .week-section { box-shadow: inset 0 1px 0 rgba(255,255,255,.04), inset 0 8px 22px rgba(0,0,0,.25); }
+.week-indicator, .day-card, .plus-menu button { box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06); }
 .plus-btn {
-  background: conic-gradient(from 200deg, #dfe8e3, #8aa095, #f1f6f3, #74897e, #dfe8e3);
-  color: #0b2b26; border: 2px solid rgba(255,255,255,.35);
-  box-shadow: 0 5px 0 rgba(0,0,0,.45), 0 0 26px rgba(142,182,155,.35), inset 0 1px 2px rgba(255,255,255,.8);
+  background: linear-gradient(135deg, #e3e7ea 0%, #a9b0b7 35%, #dfe3e6 55%, #8f969e 100%);
+  box-shadow: 0 4px 0 #3a3f45, 0 8px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.8);
 }
-.class-pill { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 2px 0 rgba(0,0,0,.35); }
-.plus-menu { background: rgba(5,31,32,.88); backdrop-filter: blur(14px); border: 1px solid rgba(218,241,222,.15); }
+.primary { box-shadow: 0 2px 0 rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7); }
+.modal { box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08); }
 
-/* glass cards with a soft sheen */
-.day-card {
-  background: linear-gradient(180deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.04) 48%, rgba(0,0,0,.12) 100%), var(--card);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(0,0,0,.25), 0 4px 0 rgba(0,0,0,.35), 0 0 26px -6px var(--glow);
-  border: 1px solid rgba(255,255,255,.18);
-}
-.day-card:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 4px 0 rgba(0,0,0,.35), 0 0 40px -2px var(--glow); }
-.wk-gloss { pointer-events: none; }
-.wk-block { transition: filter .25s; }
-.wk-block:hover { filter: drop-shadow(0 0 7px rgba(218,241,222,.55)); }
+/* week blocks stand up from the surface */
+.wk-blk { filter: drop-shadow(0 3px 2px rgba(0,0,0,.45)); transition: filter .2s; }
+.wk-blk:hover { filter: drop-shadow(0 3px 2px rgba(0,0,0,.45)) brightness(1.1); }
 
-.modal {
-  background: linear-gradient(155deg, rgba(36,78,67,.92), rgba(8,34,30,.96));
-  border: 1px solid rgba(218,241,222,.22);
-  box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.18);
+/* ---- week-change zones: a dark, dense nebula that rises when the pointer nears the edge ---- */
+.edge-zone { opacity: .35; transition: opacity .3s ease; }
+.edge-zone::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .3s ease; pointer-events: none;
 }
-.form input:not([type=range]):not([type=checkbox]):not([type=radio]), .form select, .form textarea {
-  background: rgba(3,20,21,.75); box-shadow: inset 0 2px 6px rgba(0,0,0,.45); border-color: rgba(218,241,222,.12);
+.edge-zone.left::before  { background: radial-gradient(120% 60% at 0% 50%, rgba(8,9,11,.96), rgba(40,46,54,.7) 45%, transparent 85%); }
+.edge-zone.right::before { background: radial-gradient(120% 60% at 100% 50%, rgba(8,9,11,.96), rgba(40,46,54,.7) 45%, transparent 85%); }
+.edge-zone:hover { opacity: 1; }
+.edge-zone:hover::before { opacity: 1; }
+.edge-zone { isolation: isolate; }
+
+/* ---- the upcoming strip: dense, dark nebula so the text reads clearly ---- */
+.upcoming.has-items {
+  color: #cfd4da; border-color: rgba(255,255,255,.14);
+  background:
+    radial-gradient(70% 220% at 8% 0%, rgba(96,108,124,.38), transparent 70%),
+    radial-gradient(60% 200% at 95% 100%, rgba(70,80,96,.42), transparent 70%),
+    #0a0b0d;
+  box-shadow: inset 0 0 26px rgba(0,0,0,.8);
 }
 
-/* ===== Join animation: slide in, muted -> bright, soft glow ===== */
-@keyframes joinCard {
-  0%   { opacity: 0; transform: translateX(-70px) scale(.94); filter: saturate(.12) brightness(.55); }
-  45%  { opacity: 1; transform: translateX(0) scale(1); filter: saturate(.25) brightness(.7); }
-  75%  { filter: saturate(1.35) brightness(1.18); }
-  100% { filter: none; }
+/* ---- the pop: the new block rises out of the surface like a whack-a-mole, grey to colour ---- */
+.day-card.popping, .wk-blk.popping { transform-origin: 50% 100%; transform-box: fill-box; animation: pop 1.15s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes pop {
+  0%   { transform: translateY(10px) scaleY(.06); opacity: .5; filter: grayscale(1) brightness(.7); }
+  42%  { transform: translateY(-11px) scaleY(1.09); opacity: 1; filter: grayscale(.45) brightness(1.15); }
+  62%  { transform: translateY(3px) scaleY(.97); filter: grayscale(0) brightness(1.05); }
+  80%  { transform: translateY(-3px) scaleY(1.015); }
+  100% { transform: none; filter: drop-shadow(0 3px 2px rgba(0,0,0,.45)); }
 }
-@keyframes joinGlow {
-  0%, 40% { box-shadow: 0 0 0 0 var(--glow); }
-  70% { box-shadow: 0 0 70px 14px var(--glow); }
-  100% { box-shadow: 0 0 26px -6px var(--glow); }
+.day-card.popping { animation-name: popCard; }
+@keyframes popCard {
+  0%   { transform: translateY(10px) scaleY(.06); opacity: .5; filter: grayscale(1) brightness(.7); }
+  42%  { transform: translateY(-9px) scaleY(1.07); opacity: 1; filter: grayscale(.45) brightness(1.15); }
+  62%  { transform: translateY(3px) scaleY(.98); filter: grayscale(0) brightness(1.05); }
+  80%  { transform: translateY(-2px) scaleY(1.01); }
+  100% { transform: none; filter: none; }
 }
-.day-card.joining { animation: joinCard 1.7s cubic-bezier(.2,.8,.2,1), joinGlow 1.9s ease-out; }
-@keyframes joinBlock {
-  0%   { opacity: .25; filter: saturate(.1) brightness(.55); }
-  50%  { opacity: 1; filter: saturate(.3) brightness(.75); }
-  78%  { filter: saturate(1.4) brightness(1.2) drop-shadow(0 0 12px rgba(255,255,255,.8)); }
-  100% { filter: none; }
-}
-.wk-block.joining { animation: joinBlock 1.9s ease-out; }
-
 @media (prefers-reduced-motion: reduce) {
-  .day-card.joining, .wk-block.joining { animation-duration: .01s; }
+  .day-card.popping, .wk-blk.popping { animation-duration: .01s; }
 }
 
-/* dark, slim scrollbars to match the material */
-* { scrollbar-width: thin; scrollbar-color: #3e6657 transparent; }
+/* ---- slim, dark scrollbars ---- */
+* { scrollbar-width: thin; scrollbar-color: #3b4047 transparent; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: #3e6657; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #3b4047; border-radius: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
