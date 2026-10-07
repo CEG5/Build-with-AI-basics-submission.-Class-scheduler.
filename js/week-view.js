@@ -106,7 +106,7 @@
       if (items.length) {
         var res = Carve.forBlock(g, b, items, b.m.colour, bodyId);
         s += res.defs;
-        maskAttr = ' mask="url(#' + res.maskId + ')"';
+        if (res.maskId) maskAttr = ' mask="url(#' + res.maskId + ')"';
         carveSvg = res.carves;
       }
       s += '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="10" class="wk-block" fill="' + fill + '"' + maskAttr + '/>';
@@ -124,6 +124,21 @@
       }
     });
     s += carves;
+    // items whose time is outside every block of their class: carved on their own (reference area)
+    mine.forEach(function (m) {
+      (m.cls.items || []).forEach(function (it) {
+        if (it.weekNo !== weekNo) return;
+        var inAny = false;
+        (m.cls.forks || []).forEach(function (fk) {
+          (fk.days || []).forEach(function (d) {
+            if (d.day === it.day && Carve.inBlock(it, d.startMin, d.endMin)) inAny = true;
+          });
+        });
+        if (inAny) return;
+        var ref = { x: LEFT + it.day * COLW + 3, y: TOP + (it.startMin / 60) * HOUR, w: COLW - 6, h: (100 / 60) * HOUR };
+        s += Carve.orphan(ref, ref.y, it, m.colour);
+      });
+    });
     s += '</svg>';
     el.innerHTML = s;
   };

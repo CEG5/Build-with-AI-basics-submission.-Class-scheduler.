@@ -117,5 +117,85 @@
     modal.querySelector('[data-close]').addEventListener('click', close);
   };
 
+  // ---- class panel (add item here; delete item / end class are added in a later slice) ----
+  Forms.classPanel = function (classId) {
+    var cls = Store.classById(classId);
+    if (!cls) { close(); return; }
+    var isAuthor = Store.roleOf(classId) === 'author';
+    var html = '<div class="form panel-form"><h2>' + esc(cls.name) + '</h2>' +
+      '<p class="muted">Code: <b class="code-inline">' + esc(cls.code) + '</b> • ' + (isAuthor ? "You're the rep" : "You're a member") + '</p>';
+    if (isAuthor) html += Forms.itemFormHtml();
+    html += '<div id="panel-items"></div>';
+    html += '<div class="actions"><button type="button" class="ghost" data-close>Close</button></div></div>';
+    open(html);
+    modal.querySelector('[data-close]').addEventListener('click', close);
+    if (isAuthor) Forms.wireItemForm(classId);
+    Forms.renderPanelItems(classId);
+  };
+
+  Forms.renderPanelItems = function (classId) {
+    var el = document.getElementById('panel-items');
+    var cls = Store.classById(classId);
+    if (!el || !cls) return;
+    var items = (cls.items || []).slice().sort(function (a, b) { return a.weekNo - b.weekNo || a.day - b.day || a.startMin - b.startMin; });
+    if (!items.length) { el.innerHTML = '<p class="muted">No items yet.</p>'; return; }
+    el.innerHTML = '<div class="lbl">Items</div><ul class="item-list">' + items.map(function (it) {
+      return '<li><span><b>' + esc(DayView.itemName(it)) + '</b> • week ' + it.weekNo + ', ' + Time.DAY_NAMES[it.day] + ' ' + Time.fmt(it.startMin) + '</span></li>';
+    }).join('') + '</ul>';
+  };
+
+  Forms.itemFormHtml = function () {
+    var dayOpts = Time.DAY_LONG.map(function (n, i) { return '<option value="' + i + '">' + n + '</option>'; }).join('');
+    return '<form id="item-form" class="item-form">' +
+      '<div class="lbl big">Add an item</div>' +
+      '<div class="row"><label>Type<select name="type"><option value="quiz">Quiz</option><option value="midterm">Midterm</option>' +
+      '<option value="final">Final</option><option value="other">Other</option></select></label>' +
+      '<label>Week<input type="number" name="week" min="1" max="60" value="' + WeekNav.viewedWeek() + '" required></label></div>' +
+      '<div class="row"><label>Day<select name="day">' + dayOpts + '</select></label>' +
+      '<label>Time<input type="time" name="time" value="09:00" required></label></div>' +
+      '<label id="title-wrap" hidden>Title<input name="title" maxlength="40" placeholder="e.g. Expo"></label>' +
+      '<label id="desc-wrap">Description<textarea name="desc" rows="2" maxlength="200" placeholder="Material covered, details..."></textarea></label>' +
+      '<div class="field" id="imp-wrap"><span class="lbl">How important is it?</span>' +
+      '<div class="slider-wrap"><input type="range" name="importance" min="0" max="100" value="40">' +
+      '<div class="marker" style="left:44.4%"><i></i><span>typical midterm</span></div></div>' +
+      '<div class="slider-ends"><span>Not the end of the world, but can\'t be ignored</span><span>As important as a final</span></div></div>' +
+      '<p class="error" id="item-error" hidden></p>' +
+      '<div class="actions"><button type="submit" class="primary">Carve it</button></div></form>';
+  };
+
+  Forms.wireItemForm = function (classId) {
+    var form = document.getElementById('item-form');
+    function sync() {
+      var t = form.type.value;
+      document.getElementById('imp-wrap').hidden = !(t === 'quiz' || t === 'other');
+      document.getElementById('title-wrap').hidden = t !== 'other';
+      document.getElementById('desc-wrap').hidden = t === 'midterm' || t === 'final';
+    }
+    form.type.addEventListener('change', sync);
+    sync();
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var err = document.getElementById('item-error');
+      var t = form.type.value;
+      var week = parseInt(form.week.value, 10);
+      var start = Time.parse(form.time.value);
+      if (!(week >= 1) || isNaN(start)) { err.textContent = 'Pick a week and a time.'; err.hidden = false; return; }
+      if (t === 'other' && !form.title.value.trim()) { err.textContent = 'Give it a title.'; err.hidden = false; return; }
+      err.hidden = true;
+      Store.addItem(classId, {
+        type: t, weekNo: week, day: parseInt(form.day.value, 10), startMin: start,
+        importance: (t === 'quiz' || t === 'other') ? parseInt(form.importance.value, 10) / 100 : null,
+        title: t === 'other' ? form.title.value.trim() : '',
+        description: (t === 'quiz' || t === 'other') ? form.desc.value.trim() : ''
+      });
+      // jump this window's views to the item's week and day so the carve is visible right away
+      var me = Store.me(); me.viewedWeek = week; Store.saveMe(me);
+      DayView.selectedDay = parseInt(form.day.value, 10);
+      Forms.onChange({ itemAdded: true });
+      Forms.renderPanelItems(classId);
+      Forms.toast('Carved.');
+    });
+  };
+
   window.Forms = Forms;
 })();

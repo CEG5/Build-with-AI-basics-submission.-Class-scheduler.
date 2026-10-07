@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Open `index.html` in Chrome, then open a second new window (Ctrl+N) with the same file. Create a class in the first, join it with the code in the second, and tell me whether the block and card appear and whether the layout feels like what you pictured.
   Commit: `Add scaffold, shared storage, create and join`
 
-- [ ] **2. The carve: the rep adds an item and it is carved out in the student window**
+- [x] **2. The carve: the rep adds an item and it is carved out in the student window**
   Becomes usable: In the class panel the rep adds a midterm, final, quiz or other. A complement-coloured organic piece is carved from the block, in both week and day views, and shows live in the student window.
   Why now: This is the unique kernel and the highest technical risk (blob shape, area fitting, SVG mask). It must exist early, not last.
   PRD ref: `prd.md > Adding an item (rep)` (all acceptance items), `prd.md > Look and Feel` (carve)

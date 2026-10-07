@@ -124,3 +124,22 @@ body {
 .toast[hidden] { display: none; }
 
 @media (max-width: 860px) { .views { grid-template-columns: 1fr; overflow-y: auto; } }
+
+/* class panel + add-item form */
+.panel-form { width: min(480px, 90vw); }
+.muted { color: var(--g4); margin: 0; font-size: 13px; }
+.code-inline { font-family: Consolas, monospace; letter-spacing: 2px; color: var(--g5); }
+.form .lbl.big { font-size: 15px; color: var(--g5); }
+.item-form { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 20px; background: rgba(5,31,32,.5); }
+.form [hidden] { display: none !important; }
+.slider-wrap { position: relative; padding-bottom: 20px; }
+.slider-wrap input[type=range] { width: 100%; accent-color: var(--g4); }
+.slider-wrap .marker { position: absolute; top: 20px; transform: translateX(-50%); text-align: center; font-size: 10px; color: var(--g4); pointer-events: none; }
+.slider-wrap .marker i { display: block; width: 2px; height: 8px; margin: -8px auto 0; background: var(--g4); }
+.slider-ends { display: flex; justify-content: space-between; gap: 14px; font-size: 11px; font-weight: 600; }
+.slider-ends span:last-child { text-align: right; }
+.item-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+.item-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--g2); padding: 8px 12px; border-radius: 14px; font-size: 13px; color: var(--g5); }
+.card-items { list-style: none; margin: 6px 0 0; padding: 0; font-size: 12px; font-weight: 700; }
+.card-items .desc { font-weight: 600; opacity: .85; }
+.day-card.loose { color: var(--g5); }

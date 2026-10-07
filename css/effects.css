@@ -1,1 +1,3 @@
 /* effects.css - glows, carve styling, animations (grows in later slices) */
+.carve-piece { stroke: rgba(255,255,255,.35); stroke-width: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,.35)); }
+.card-svg { display: block; overflow: visible; }

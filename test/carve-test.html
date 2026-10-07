@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Carve test</title>
+<style>body{background:#051F20;color:#DAF1DE;font-family:sans-serif;padding:16px}table{border-collapse:collapse}td{padding:6px 12px;vertical-align:middle}svg{background:#0B2B26;border-radius:8px}.ok{color:#8EB69B}.bad{color:#ff8d8a}</style></head>
+<body><h2>Carve engine check</h2><p>Each row: a 100-minute block carved at 9:30 (30% down) with the target area. "Measured" is the area actually removed.</p>
+<table id="t"><tr><th>Case</th><th>Target</th><th>Measured</th><th>Result</th><th>Picture</th></tr></table>
+<script src="../js/carve.js"></script>
+<script>
+var colours = ['#8B5CF6', '#FF5A5F', '#2EE6D6'];
+var cases = [
+  ['Midterm', { type: 'midterm' }], ['Final', { type: 'final' }],
+  ['Quiz, slider 0', { type: 'quiz', importance: 0 }], ['Quiz, slider 0.25', { type: 'quiz', importance: 0.25 }],
+  ['Quiz, slider 0.5', { type: 'quiz', importance: 0.5 }], ['Quiz, slider 0.75', { type: 'quiz', importance: 0.75 }],
+  ['Quiz, slider 1', { type: 'quiz', importance: 1 }]
+];
+var t = document.getElementById('t'), allOk = true;
+cases.forEach(function (c, i) {
+  [0, 1, 2].forEach(function (seedN) {
+    var item = Object.assign({ id: 'seed' + i + '-' + seedN }, c[1]);
+    var g = { x: 10, y: 10, w: 84, h: 53 };
+    var y0 = g.y + 0.3 * g.h;
+    var f = Carve.fit(g, y0, item);
+    var ok = Math.abs(f.coverage - f.target) < 0.03;
+    allOk = allOk && ok;
+    var colour = colours[seedN];
+    var res = Carve.blockCarves(g, 0, 100, [Object.assign({}, item, { startMin: 30 })], colour, 'c' + i + seedN);
+    var row = t.insertRow();
+    row.innerHTML = '<td>' + c[0] + ' (shape ' + (seedN + 1) + ')</td><td>' + f.target.toFixed(3) + '</td><td>' + f.coverage.toFixed(3) + '</td><td class="' + (ok ? 'ok' : 'bad') + '">' + (ok ? 'ok' : 'off') + '</td><td><svg viewBox="0 0 104 73" width="208" height="146"><defs>' + res.defs + '</defs><rect x="10" y="10" width="84" height="53" rx="10" fill="' + colour + '" mask="url(#' + res.maskId + ')"/>' + res.carves + '</svg></td>';
+  });
+});
+document.title = allOk ? 'Carve test: ALL OK' : 'Carve test: SOME OFF';
+</script></body></html>
