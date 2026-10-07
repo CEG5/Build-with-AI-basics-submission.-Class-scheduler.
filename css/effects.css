@@ -12,7 +12,7 @@ body {
 
 /* ---- the slab: a thick marble rim extruded up around a recessed floor ---- */
 .panel {
-  background: url("stone-rough.svg") 0 0 / 512px 512px, #6b7076;
+  background: url("stone-honed.svg") 0 0 / 512px 512px, #6b7076;
   border-radius: 6px;
   box-shadow:
     inset 1px 1px 0 rgba(255,255,255,.6),          /* lit top-left edge of the rim */
@@ -73,7 +73,7 @@ body {
 
 /* ---- the ridge: a low raised wall of the same stone, bending between the daily and weekly schedules ---- */
 .ridge {
-  background: url("stone-rough.svg") 0 0 / 512px 512px, #6b7076;
+  background: url("stone-honed.svg") 0 0 / 512px 512px, #6b7076;
   border-radius: 3px;
   box-shadow:
     inset 1px 0 0 rgba(255,255,255,.5), inset -1px 0 0 rgba(0,0,0,.6),
