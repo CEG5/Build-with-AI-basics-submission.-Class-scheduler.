@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Add a midterm, a final and a quiz (move the slider) in the rep window and watch the student window. Tell me whether the carve looks the way you imagined: organic, contrasting, the right size.
   Commit: `Add carve engine and add-item form`
 
-- [ ] **3. Full create-class form: forks, free times, eight colours, recolouring**
+- [x] **3. Full create-class form: forks, free times, eight colours, recolouring**
   Becomes usable: A rep can create a class with several days, any duration (1h40, 2h40, 60 min), one of eight colours, and an optional lecture/practical split shown as two related shades. A student can recolour their own copy.
   Why now: The basic class from slice 1 becomes the real one, now that the carve works on it.
   PRD ref: `prd.md > Creating a class (rep)` (both acceptance items), `prd.md > Joining a class (student)` (recolour)

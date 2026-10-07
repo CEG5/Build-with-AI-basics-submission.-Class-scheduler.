@@ -144,3 +144,15 @@ body {
 .card-items .desc { font-weight: 600; opacity: .85; }
 .day-card.loose { color: var(--g5); }
 .form input[name=name], .form input[name=code], .form input[name=title] { text-align: center; }
+
+/* create form: day rows, forks */
+.toggle { flex-direction: row !important; align-items: center; gap: 10px !important; color: var(--g5) !important; font-size: 14px !important; }
+.day-rows { display: flex; flex-direction: column; gap: 6px; }
+.day-row { display: flex; align-items: center; gap: 8px; }
+.day-row .chip span { min-width: 58px; text-align: center; padding: 7px 10px; }
+.day-row input[type=time] { flex: 1; min-width: 0; padding: 7px 8px; }
+.day-row input[type=time]:disabled { opacity: .3; }
+.day-row em { color: var(--g4); font-style: normal; font-size: 12px; }
+.fork-box { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 18px; background: rgba(5,31,32,.5); }
+.fork-box + .fork-box { margin-top: 10px; }
+.create-scroll { max-height: 70vh; }
