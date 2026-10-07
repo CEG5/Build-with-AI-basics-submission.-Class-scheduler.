@@ -12,12 +12,12 @@
   var MAX_H = 140;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var STONES = ['granite', 'slate', 'basalt', 'marble', 'granite', 'slate'];
+  var STONES = ['concrete']; // plain concrete; the shades come from each block being a little lighter or darker
   var patterns = {};
   var cols = [], calm = false, W = 0, H = 0, ease = 0, last = 0;
 
   // load the stone textures (tiles); until a texture has loaded its blocks are drawn in a plain grey
-  ['granite', 'slate', 'basalt', 'marble'].forEach(function (name) {
+  ['concrete'].forEach(function (name) {
     var img = new Image();
     img.onload = function () { if (ctx) patterns[name] = ctx.createPattern(img, 'repeat'); };
     img.src = 'css/stone-' + name + '.svg';
@@ -44,7 +44,7 @@
       while (total < H + 720) { // long enough that blocks only wrap while out of view
         var h = pick(BLOCK_H);
         // each block is its own cut of stone: a random window onto the texture, and a little lighter or darker
-        blocks.push({ h: h, l: base + rand(-6, 6), ox: Math.floor(rand(0, 512)), oy: Math.floor(rand(0, 512)), dark: rand(0, 0.38) });
+        blocks.push({ h: h, l: base + rand(-6, 6), ox: Math.floor(rand(0, 512)), oy: Math.floor(rand(0, 512)), dark: rand(0.05, 0.55) });
         total += h;
       }
       cols.push({

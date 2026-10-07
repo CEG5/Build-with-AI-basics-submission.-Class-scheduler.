@@ -12,7 +12,7 @@ body {
 
 /* ---- the slab: a thick marble rim extruded up around a recessed floor ---- */
 .panel {
-  background: url("marble.svg") center / cover no-repeat, #5d6269;
+  background: url("stone-rough.svg") 0 0 / 512px 512px, #6b7076;
   border-radius: 6px;
   box-shadow:
     inset 1px 1px 0 rgba(255,255,255,.6),          /* lit top-left edge of the rim */
@@ -73,7 +73,7 @@ body {
 
 /* ---- the ridge: a low raised wall of the same stone, bending between the daily and weekly schedules ---- */
 .ridge {
-  background: url("marble.svg") center / cover no-repeat, #5d6269;
+  background: url("stone-rough.svg") 0 0 / 512px 512px, #6b7076;
   border-radius: 3px;
   box-shadow:
     inset 1px 0 0 rgba(255,255,255,.5), inset -1px 0 0 rgba(0,0,0,.6),
@@ -129,3 +129,82 @@ body {
   background: linear-gradient(rgba(8,9,11,.6), rgba(8,9,11,.6)), url("stone-basalt.svg") 0 0 / 512px 512px, var(--stone-0);
 }
 .wk-col { fill: rgba(255,255,255,.03); }
+
+/* ===== Lighting: one soft light from the top left, like daylight through a window =====
+   Raised things have a light edge on the top left and a deep soft shadow to the bottom right; recessed things
+   are the reverse. A very faint band of window light falls diagonally across the whole slab. */
+.panel {
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.45), inset 3px 3px 8px rgba(255,255,255,.12),
+    inset -1px -1px 0 rgba(0,0,0,.6), inset -5px -5px 10px rgba(0,0,0,.4),
+    0 1px 0 #50555b, 0 2px 0 #464b51, 0 3px 0 #3d4248, 0 4px 0 #34383d, 0 5px 0 #2b2f34, 0 6px 0 #23262a,
+    -8px -8px 22px rgba(255,255,255,.05),
+    18px 24px 40px rgba(0,0,0,.6), 40px 60px 100px rgba(0,0,0,.5);
+}
+.day-section, .week-section {
+  box-shadow: inset 4px 5px 12px rgba(0,0,0,.6), inset -3px -3px 8px rgba(255,255,255,.035);
+}
+.day-card, .week-indicator, .plus-menu button, .day-tab:not(.active), .ghost {
+  box-shadow: -2px -2px 5px rgba(255,255,255,.05), 3px 4px 8px rgba(0,0,0,.6), inset 1px 1px 0 rgba(255,255,255,.07);
+}
+.day-tab:active, .week-indicator:active, .ghost:active { box-shadow: inset 2px 3px 6px rgba(0,0,0,.65), inset -1px -1px 2px rgba(255,255,255,.05); }
+.plus-btn { box-shadow: -3px -3px 7px rgba(255,255,255,.12), 4px 6px 12px rgba(0,0,0,.65), inset 1px 1px 2px rgba(255,255,255,.8); }
+.plus-btn:active { box-shadow: inset 3px 4px 8px rgba(0,0,0,.5); }
+.form input:not([type=range]):not([type=checkbox]):not([type=radio]), .form select, .form textarea {
+  box-shadow: inset 2px 3px 6px rgba(0,0,0,.6), inset -1px -1px 2px rgba(255,255,255,.04);
+}
+.wk-blk { filter: drop-shadow(3px 5px 3px rgba(0,0,0,.55)); }
+.wk-blk:hover { filter: drop-shadow(3px 5px 3px rgba(0,0,0,.55)) brightness(1.1); }
+.ridge {
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.4), inset -1px -1px 0 rgba(0,0,0,.6), -2px -2px 5px rgba(255,255,255,.04), 4px 4px 8px rgba(0,0,0,.55);
+}
+/* daylight through a window: soft diagonal bands of light and shade across the slab */
+.panel::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 3;
+  background:
+    linear-gradient(115deg, transparent 0 14%, rgba(255,255,255,.05) 22%, rgba(255,255,255,.06) 30%, transparent 40% 52%, rgba(0,0,0,.12) 60%, rgba(0,0,0,.14) 66%, transparent 76% 100%);
+}
+
+/* ===== Sleek controls and the cosmic emerald: smooth surfaces (no texture), deep emerald like a cut stone ===== */
+:root {
+  --em-0: #07201b; --em-1: #0d3028; --em-2: #16473c; --em-3: #1f6a58; --em-4: #2a8f74; --em-hi: #7fe0bd;
+}
+.week-indicator, .day-tab:not(.active), .ghost, .plus-menu button {
+  background: linear-gradient(160deg, var(--em-2), var(--em-1));
+  color: #e3f2ed; border: 1px solid rgba(127,224,189,.14);
+}
+.week-indicator .wk-sub { color: #8fbfb0; }
+.day-tab:not(.active) { color: #8fbfb0; }
+.day-tab:not(.active):hover, .ghost:hover, .plus-menu button:hover { background: linear-gradient(160deg, #1c5a4c, #123b32); color: #f1fbf7; }
+.day-tab.active, .primary {
+  background: linear-gradient(160deg, var(--em-4), #14604d);
+  color: #f1fbf7; border: 1px solid rgba(160,240,215,.35);
+  box-shadow: -2px -2px 5px rgba(255,255,255,.05), 3px 4px 8px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.plus-btn {
+  background: linear-gradient(160deg, var(--em-4), #14604d); color: #f1fbf7; border: 1px solid rgba(160,240,215,.35);
+  box-shadow: -3px -3px 7px rgba(255,255,255,.07), 4px 6px 12px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.form input:not([type=range]):not([type=checkbox]):not([type=radio]), .form select, .form textarea {
+  background: #0b1512; border-color: rgba(127,224,189,.14);
+}
+.form input:focus, .form select:focus, .form textarea:focus { outline: 1px solid var(--em-hi); }
+.slider-wrap input[type=range] { accent-color: var(--em-4); }
+.s-add:hover { border-color: var(--em-hi); }
+.toast { background: linear-gradient(160deg, var(--em-4), #14604d); color: #f1fbf7; }
+
+/* cosmic emerald nebula: week-change zones and the upcoming strip */
+.edge-zone.left::before  { background: radial-gradient(130% 70% at 0% 50%, rgba(3,13,11,.97) 0%, rgba(14,104,84,.62) 38%, rgba(20,163,174,.30) 66%, transparent 90%); }
+.edge-zone.right::before { background: radial-gradient(130% 70% at 100% 50%, rgba(3,13,11,.97) 0%, rgba(31,150,112,.55) 38%, rgba(20,140,170,.30) 66%, transparent 90%); }
+.upcoming.has-items {
+  color: #d4ece4; border-color: rgba(127,224,189,.26);
+  background:
+    radial-gradient(1px 1px at 12% 34%, rgba(255,255,255,.75), transparent 100%),
+    radial-gradient(1px 1px at 37% 70%, rgba(255,255,255,.55), transparent 100%),
+    radial-gradient(1.2px 1.2px at 61% 28%, rgba(255,255,255,.7), transparent 100%),
+    radial-gradient(1px 1px at 83% 62%, rgba(255,255,255,.55), transparent 100%),
+    radial-gradient(45% 260% at 6% 0%, rgba(20,130,100,.55), transparent 70%),
+    radial-gradient(40% 240% at 52% 120%, rgba(20,163,174,.34), transparent 70%),
+    radial-gradient(45% 260% at 98% 10%, rgba(40,150,110,.42), transparent 70%),
+    #040b0a;
+}
