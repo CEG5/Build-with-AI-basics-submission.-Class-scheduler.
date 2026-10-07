@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <filter id="cloud" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006" numOctaves="3" seed="4" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .05  0 0 0 0 .06  0 0 0 0 .07  1.4 0 0 0 -.45"/>
+    </filter>
+    <filter id="light" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" seed="12" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .86  0 0 0 0 .87  0 0 0 0 .89  4 0 0 0 -2.15"/>
+    </filter>
+    <filter id="dark" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.42" numOctaves="3" seed="27" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .04  0 0 0 0 .05  0 0 0 0 .06  -4 0 0 0 1.75"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="#4a4e53"/>
+  <rect width="512" height="512" filter="url(#cloud)" opacity=".6"/>
+  <rect width="512" height="512" filter="url(#dark)" opacity=".75"/>
+  <rect width="512" height="512" filter="url(#light)" opacity=".8"/>
+</svg>

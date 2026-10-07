@@ -107,3 +107,25 @@ body {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: #3b4047; border-radius: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ===== More stone: every surface is a real stone texture, kept dark and quiet so text stays readable ===== */
+.panel-inner {
+  background: linear-gradient(rgba(14,16,19,.62), rgba(14,16,19,.62)), url("stone-slate.svg") 0 0 / 512px 512px, var(--stone-1);
+}
+.day-section, .week-section {
+  background: linear-gradient(rgba(8,9,11,.72), rgba(8,9,11,.72)), url("stone-basalt.svg") 0 0 / 512px 512px, var(--stone-0);
+}
+.day-card {
+  background: linear-gradient(rgba(20,22,25,.45), rgba(20,22,25,.45)), url("stone-granite.svg") 0 0 / 512px 512px, var(--stone-2);
+}
+.week-indicator, .day-tab, .plus-menu button, .ghost {
+  background: linear-gradient(rgba(20,22,25,.5), rgba(20,22,25,.5)), url("stone-granite.svg") 0 0 / 512px 512px, var(--stone-2);
+}
+.day-tab.active { background: linear-gradient(180deg, var(--metal-hi), var(--metal-lo)); }
+.modal {
+  background: linear-gradient(rgba(14,16,19,.7), rgba(14,16,19,.7)), url("stone-slate.svg") 0 0 / 512px 512px, var(--stone-1);
+}
+.form input:not([type=range]):not([type=checkbox]):not([type=radio]), .form select, .form textarea {
+  background: linear-gradient(rgba(8,9,11,.6), rgba(8,9,11,.6)), url("stone-basalt.svg") 0 0 / 512px 512px, var(--stone-0);
+}
+.wk-col { fill: rgba(255,255,255,.03); }

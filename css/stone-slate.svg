@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <filter id="streak" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.004 0.05" numOctaves="4" seed="9" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .62  0 0 0 0 .68  0 0 0 0 .75  2.6 0 0 0 -1.2"/>
+    </filter>
+    <filter id="shadow" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.07" numOctaves="3" seed="31" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .03  0 0 0 0 .04  0 0 0 0 .05  -2.6 0 0 0 1.35"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.6 -.7"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="#363c45"/>
+  <rect width="512" height="512" filter="url(#shadow)" opacity=".7"/>
+  <rect width="512" height="512" filter="url(#streak)" opacity=".35"/>
+  <rect width="512" height="512" filter="url(#grain)" opacity=".16"/>
+</svg>

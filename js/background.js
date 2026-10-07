@@ -12,7 +12,16 @@
   var MAX_H = 140;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  var STONES = ['granite', 'slate', 'basalt', 'marble', 'granite', 'slate'];
+  var patterns = {};
   var cols = [], calm = false, W = 0, H = 0, ease = 0, last = 0;
+
+  // load the stone textures (tiles); until a texture has loaded its blocks are drawn in a plain grey
+  ['granite', 'slate', 'basalt', 'marble'].forEach(function (name) {
+    var img = new Image();
+    img.onload = function () { if (ctx) patterns[name] = ctx.createPattern(img, 'repeat'); };
+    img.src = 'css/stone-' + name + '.svg';
+  });
 
   function rand(a, b) { return a + Math.random() * (b - a); }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
@@ -30,15 +39,16 @@
       var cw = pick(COL_W);
       if (W - x - cw < 50) cw = W - x;
       // a column's base shade: cool greys from graphite to light stone
-      var base = rand(15, 36);
+      var stone = pick(STONES), base = rand(15, 36);
       var blocks = [], total = 0;
       while (total < H + 720) { // long enough that blocks only wrap while out of view
         var h = pick(BLOCK_H);
-        blocks.push({ h: h, l: base + rand(-6, 6) });
+        // each block is its own cut of stone: a random window onto the texture, and a little lighter or darker
+        blocks.push({ h: h, l: base + rand(-6, 6), ox: Math.floor(rand(0, 512)), oy: Math.floor(rand(0, 512)), dark: rand(0, 0.38) });
         total += h;
       }
       cols.push({
-        x: x, w: cw, blocks: blocks, y0: -MAX_H - rand(0, 80),
+        x: x, w: cw, blocks: blocks, stone: stone, y0: -MAX_H - rand(0, 80),
         dir: Math.random() < 0.5 ? 1 : -1,           // some columns fall, some rise
         wait: rand(0.5, 6), anim: null
       });
@@ -108,8 +118,20 @@
         var b = c.blocks[j];
         if (y + b.h > -4 && y < H + 4) {
           var bx = c.x + GAP / 2, by = y + GAP / 2, bw = c.w - GAP, bh = b.h - GAP;
-          ctx.fillStyle = 'hsl(214,7%,' + b.l.toFixed(1) + '%)';
-          roundRect(bx, by, bw, bh, 3); ctx.fill();
+          var pat = patterns[c.stone];
+          if (pat) {
+            // the stone texture moves with the block (it is clipped to the block, offset by its own window)
+            ctx.save();
+            roundRect(bx, by, bw, bh, 3); ctx.clip();
+            ctx.translate(bx - b.ox, by - b.oy);
+            ctx.fillStyle = pat; ctx.fillRect(b.ox, b.oy, bw, bh);
+            ctx.restore();
+            ctx.fillStyle = 'rgba(0,0,0,' + b.dark.toFixed(2) + ')';
+            roundRect(bx, by, bw, bh, 3); ctx.fill();
+          } else {
+            ctx.fillStyle = 'hsl(214,7%,' + b.l.toFixed(1) + '%)';
+            roundRect(bx, by, bw, bh, 3); ctx.fill();
+          }
           // a soft gradient within the block: lighter at the top, darker at the bottom
           ctx.fillStyle = 'rgba(255,255,255,.045)'; ctx.fillRect(bx, by, bw, bh * 0.5);
           ctx.fillStyle = 'rgba(0,0,0,.10)'; ctx.fillRect(bx, by + bh * 0.5, bw, bh * 0.5);
