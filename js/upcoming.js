@@ -40,13 +40,23 @@
 
   Upcoming.render = function (el, mine) {
     var rows = Upcoming.build(mine);
+    var keep = el.scrollLeft; // keep the scroll position when the strip is redrawn
     el.classList.toggle('has-items', rows.length > 0);
     if (!rows.length) { el.innerHTML = '<span class="up-empty">Nothing upcoming</span>'; return; }
-    el.innerHTML = rows.slice(0, 4).map(function (r) {
+    el.innerHTML = rows.map(function (r) {
       var t = Upcoming.text(r);
       return '<span class="up-item"><i class="up-dot" style="background:' + Carve.complement(r.m.colour) + '"></i><b>' + esc(t.head) + '</b> ' + esc(t.tail) + '</span>';
     }).join('');
+    el.scrollLeft = keep;
   };
+
+  // The strip scrolls sideways: the mouse wheel moves it left and right.
+  var strip = document.getElementById('upcoming');
+  strip.addEventListener('wheel', function (e) {
+    if (strip.scrollWidth <= strip.clientWidth) return;
+    strip.scrollLeft += e.deltaY + e.deltaX;
+    e.preventDefault();
+  }, { passive: false });
 
   window.Upcoming = Upcoming;
 })();

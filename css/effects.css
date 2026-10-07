@@ -6,8 +6,7 @@ body {
   background-color: var(--bg);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .82 0 0 0 0 .85 2.4 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E"),
-    radial-gradient(110% 90% at 30% 0%, #1b1e21 0%, transparent 65%),
-    linear-gradient(170deg, #15171a, #0f1012);
+    linear-gradient(#141618, #141618);
 }
 
 
@@ -54,20 +53,32 @@ body {
 .edge-zone::before {
   content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .3s ease; pointer-events: none;
 }
-.edge-zone.left::before  { background: radial-gradient(120% 60% at 0% 50%, rgba(8,9,11,.96), rgba(40,46,54,.7) 45%, transparent 85%); }
-.edge-zone.right::before { background: radial-gradient(120% 60% at 100% 50%, rgba(8,9,11,.96), rgba(40,46,54,.7) 45%, transparent 85%); }
+.edge-zone.left::before  { background: radial-gradient(130% 70% at 0% 50%, rgba(9,6,22,.97) 0%, rgba(76,32,140,.62) 38%, rgba(20,163,174,.30) 66%, transparent 90%); }
+.edge-zone.right::before { background: radial-gradient(130% 70% at 100% 50%, rgba(9,6,22,.97) 0%, rgba(163,34,111,.55) 38%, rgba(47,95,208,.32) 66%, transparent 90%); }
 .edge-zone:hover { opacity: 1; }
 .edge-zone:hover::before { opacity: 1; }
 .edge-zone { isolation: isolate; }
 
 /* ---- the upcoming strip: dense, dark nebula so the text reads clearly ---- */
 .upcoming.has-items {
-  color: #cfd4da; border-color: rgba(255,255,255,.14);
+  color: #d6d3e6; border-color: rgba(150,130,220,.28);
   background:
-    radial-gradient(70% 220% at 8% 0%, rgba(96,108,124,.38), transparent 70%),
-    radial-gradient(60% 200% at 95% 100%, rgba(70,80,96,.42), transparent 70%),
-    #0a0b0d;
-  box-shadow: inset 0 0 26px rgba(0,0,0,.8);
+    radial-gradient(45% 260% at 6% 0%, rgba(86,40,160,.55), transparent 70%),
+    radial-gradient(40% 240% at 52% 120%, rgba(20,163,174,.34), transparent 70%),
+    radial-gradient(45% 260% at 98% 10%, rgba(163,34,111,.45), transparent 70%),
+    #07060d;
+  box-shadow: inset 0 0 28px rgba(0,0,0,.85);
+}
+.upcoming.has-items .up-item b { text-shadow: 0 1px 6px rgba(0,0,0,.9); }
+
+/* ---- the ridge: a low raised wall of the same stone, bending between the daily and weekly schedules ---- */
+.ridge {
+  background: url("marble.svg") center / cover no-repeat, #5d6269;
+  border-radius: 3px;
+  box-shadow:
+    inset 1px 0 0 rgba(255,255,255,.5), inset -1px 0 0 rgba(0,0,0,.6),
+    -3px 0 5px rgba(0,0,0,.45), 3px 0 5px rgba(0,0,0,.35),
+    1px 0 0 rgba(0,0,0,.7), -1px 0 0 rgba(0,0,0,.7);
 }
 
 /* ---- the pop: the new block rises out of the surface like a whack-a-mole, grey to colour ---- */

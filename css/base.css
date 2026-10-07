@@ -27,7 +27,7 @@ button, input, select, textarea { font-family: inherit; }
 .stage { position: relative; z-index: 2; height: 100%; display: grid; place-items: center; }
 .panel { width: min(1180px, 95vw); height: min(820px, 90vh); padding: 26px; position: relative; }
 .panel-inner { height: 100%; display: flex; flex-direction: column; padding: 14px 14px 10px; background: var(--stone-1); }
-.views { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(290px, 5fr) 7fr; gap: 14px; }
+.views { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(290px, 5fr) 9px 7fr; gap: 10px; }
 .day-section, .week-section { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--stone-0); border: 1px solid var(--line); border-radius: 3px; padding: 12px; }
 
 /* ---- daily schedule ---- */
@@ -70,11 +70,11 @@ button, input, select, textarea { font-family: inherit; }
 .week-indicator .wk-sub { display: block; margin-top: 1px; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .week-indicator.away .wk-sub { color: #d9a45b; }
 .upcoming {
-  flex: 1; min-width: 0; display: flex; align-items: center; gap: 22px; padding: 0 18px; overflow: hidden;
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 26px; padding: 0 18px; overflow-x: auto; overflow-y: hidden;
   border-radius: 3px; border: 1px solid var(--line); background: var(--stone-0); color: var(--muted); font-size: 12.5px;
 }
 .up-empty { letter-spacing: .06em; font-weight: 300; }
-.up-item { white-space: nowrap; display: flex; align-items: center; gap: 7px; }
+.up-item { flex: none; white-space: nowrap; display: flex; align-items: center; gap: 7px; }
 .up-item b { color: #fff; font-weight: 600; }
 .up-dot { width: 8px; height: 8px; display: inline-block; border-radius: 1px; }
 
@@ -177,4 +177,4 @@ button, input, select, textarea { font-family: inherit; }
 .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 20; padding: 10px 20px; border-radius: 3px; background: var(--metal-hi); color: #14171a; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
 .toast[hidden] { display: none; }
 
-@media (max-width: 860px) { .views { grid-template-columns: 1fr; overflow-y: auto; } }
+@media (max-width: 860px) { .views { grid-template-columns: 1fr; overflow-y: auto; } .ridge { display: none; } }

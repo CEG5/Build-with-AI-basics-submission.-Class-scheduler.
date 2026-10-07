@@ -95,7 +95,8 @@
       s += res.defs;
       s += '<g class="wk-blk" data-class-id="' + b.cls.id + '">';
       // side face: the block stands RISE px above the surface
-      s += '<rect x="' + g.x + '" y="' + (g.y + RISE) + '" width="' + g.w + '" height="' + g.h + '" rx="3" fill="' + Carve.shade(b.m.colour, -0.28) + '" class="wk-side"/>';
+      // (the same carve is cut through the side face, shifted down by RISE, so the raised edge is carved too)
+      s += '<g transform="translate(0,' + RISE + ')"' + mask + '><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3" fill="' + Carve.shade(b.m.colour, -0.28) + '" class="wk-side"/></g>';
       s += '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3" class="wk-block" fill="url(#wg-' + b.cls.id + ')"' + mask + '/>';
       s += res.carves;
       var maxChars = Math.max(2, Math.floor(g.w / 6.4));
