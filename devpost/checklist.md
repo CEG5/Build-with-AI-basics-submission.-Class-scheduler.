@@ -59,7 +59,7 @@ Build mode: fast
   Learner check: End a class in the rep window and confirm it vanishes in the student window; check the student cannot edit.
   Commit: `Add delete item, end class, author rules`
 
-- [ ] **6. Living background and grid**
+- [x] **6. Living background and grid**
   Becomes usable: A canvas of drifting blocks behind the panel that eases into a calm grid once the window has a class.
   Why now: Mood and identity, built simple first as the PRD asks.
   PRD ref: `prd.md > Look and Feel` (background), `prd.md > The Core Journey` (steps 1-2)
@@ -69,7 +69,7 @@ Build mode: fast
   Learner check: Open the page fresh, then join a class, and tell me whether the background feels right.
   Commit: `Add living background`
 
-- [ ] **7. Join animation, glows, polish and README**
+- [x] **7. Join animation, glows, polish and README**
   Becomes usable: Joining plays the morph from muted to bright with a glow; nebula glows on active block and week edges; a README explains how to run.
   Why now: The demo's "oh, that's cool" beat, added once the flows are solid.
   PRD ref: `prd.md > Joining a class (student)`, `prd.md > Look and Feel` (effects)

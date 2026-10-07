@@ -64,7 +64,7 @@
 
   WeekView.render = function (el, mine, weekNo) {
     var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Weekly schedule">';
-    s += '<defs>';
+    s += '<defs><linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset=".5" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient>';
     // Fork shade gradients: lecture dark -> light, practical light -> dark (same hue).
     mine.forEach(function (m) {
       s += '<linearGradient id="g-' + m.cls.id + '-0" x1="0" y1="0" x2="0" y2="1">' +
@@ -109,7 +109,8 @@
         if (res.maskId) maskAttr = ' mask="url(#' + res.maskId + ')"';
         carveSvg = res.carves;
       }
-      s += '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="10" class="wk-block" fill="' + fill + '"' + maskAttr + '/>';
+      s += '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="10" class="wk-block" data-class-id="' + b.cls.id + '" fill="' + fill + '"' + maskAttr + '/>' +
+           '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="10" class="wk-gloss" fill="url(#gloss)"' + maskAttr + '/>';
       // studs (small lego-like details)
       if (g.h > 26 && g.w > 30) {
         for (var k = 0; k < Math.min(3, Math.floor((g.w - 8) / 16)); k++) {
