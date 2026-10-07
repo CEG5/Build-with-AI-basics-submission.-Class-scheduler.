@@ -156,3 +156,6 @@ body {
 .fork-box { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 18px; background: rgba(5,31,32,.5); }
 .fork-box + .fork-box { margin-top: 10px; }
 .create-scroll { max-height: 70vh; }
+.item-list .del { border: 0; width: 24px; height: 24px; border-radius: 50%; background: rgba(217,66,62,.2); color: #ff8d8a; font-size: 16px; line-height: 1; cursor: pointer; }
+.item-list .del:hover { background: #d9423e; color: #fff; }
+.actions .danger { margin-right: auto; }

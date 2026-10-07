@@ -14,6 +14,7 @@
     if (!modal.open) modal.showModal();
   }
   function close() { if (modal.open) modal.close(); }
+  modal.addEventListener('close', function () { Forms.currentPanel = null; });
   Forms.open = open;
   Forms.close = close;
   Forms.esc = esc;
@@ -165,31 +166,62 @@
     var cls = Store.classById(classId);
     if (!cls) { close(); return; }
     var isAuthor = Store.roleOf(classId) === 'author';
+    Forms.currentPanel = null;
     var html = '<div class="form panel-form"><h2>' + esc(cls.name) + '</h2>' +
       '<p class="muted">Code: <b class="code-inline">' + esc(cls.code) + '</b> • ' + (isAuthor ? "You're the rep" : "You're a member") + '</p>';
     html += '<div class="field"><span class="lbl">Your colour (only changes it for you)</span>' + swatches('mycolour', (Store.me().memberships[classId] || {}).colour || cls.colour) + '</div>';
     if (isAuthor) html += Forms.itemFormHtml();
     html += '<div id="panel-items"></div>';
-    html += '<div class="actions"><button type="button" class="ghost" data-close>Close</button></div></div>';
+    html += '<div class="actions">' + (isAuthor ? '<button type="button" class="danger" id="end-class">End class</button>' : '') +
+      '<button type="button" class="ghost" data-close>Close</button></div></div>';
     open(html);
+    Forms.currentPanel = classId;
     modal.querySelector('[data-close]').addEventListener('click', close);
     modal.querySelector('.swatches').addEventListener('change', function (e) {
       Store.recolour(classId, e.target.value);
       Forms.onChange({ recoloured: classId });
     });
-    if (isAuthor) Forms.wireItemForm(classId);
+    if (isAuthor) {
+      Forms.wireItemForm(classId);
+      document.getElementById('end-class').addEventListener('click', function () { Forms.confirmEnd(classId); });
+    }
     Forms.renderPanelItems(classId);
+  };
+
+  // Red "end class" asks first; ending deletes the class for everyone who has the code.
+  Forms.confirmEnd = function (classId) {
+    var cls = Store.classById(classId);
+    if (!cls) return;
+    open('<div class="form"><h2>End "' + esc(cls.name) + '"?</h2>' +
+      '<p>This will delete it for everyone who has the code. Are you sure?</p>' +
+      '<div class="actions"><button type="button" class="ghost" id="end-no">Cancel</button>' +
+      '<button type="button" class="danger" id="end-yes">End class</button></div></div>');
+    document.getElementById('end-no').addEventListener('click', function () { Forms.classPanel(classId); });
+    document.getElementById('end-yes').addEventListener('click', function () {
+      Store.endClass(classId);
+      close();
+      Forms.onChange({ ended: classId });
+    });
   };
 
   Forms.renderPanelItems = function (classId) {
     var el = document.getElementById('panel-items');
     var cls = Store.classById(classId);
     if (!el || !cls) return;
+    var isAuthor = Store.roleOf(classId) === 'author';
     var items = (cls.items || []).slice().sort(function (a, b) { return a.weekNo - b.weekNo || a.day - b.day || a.startMin - b.startMin; });
     if (!items.length) { el.innerHTML = '<p class="muted">No items yet.</p>'; return; }
     el.innerHTML = '<div class="lbl">Items</div><ul class="item-list">' + items.map(function (it) {
-      return '<li><span><b>' + esc(DayView.itemName(it)) + '</b> • week ' + it.weekNo + ', ' + Time.DAY_NAMES[it.day] + ' ' + Time.fmt(it.startMin) + '</span></li>';
+      return '<li><span><b>' + esc(DayView.itemName(it)) + '</b> • week ' + it.weekNo + ', ' + Time.DAY_NAMES[it.day] + ' ' + Time.fmt(it.startMin) + '</span>' +
+        (isAuthor ? '<button type="button" class="del" data-item="' + it.id + '" aria-label="Delete item">&times;</button>' : '') + '</li>';
     }).join('') + '</ul>';
+    Array.prototype.forEach.call(el.querySelectorAll('.del'), function (b) {
+      b.addEventListener('click', function () {
+        Store.deleteItem(classId, b.getAttribute('data-item'));
+        Forms.onChange({ itemDeleted: true });
+        Forms.renderPanelItems(classId);
+      });
+    });
   };
 
   Forms.itemFormHtml = function () {

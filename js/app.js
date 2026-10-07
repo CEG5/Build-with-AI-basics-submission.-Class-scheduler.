@@ -26,6 +26,7 @@
     followNewItems(mine);
     var weekNo = WeekNav.viewedWeek();
     document.getElementById('week-label').textContent = 'Week ' + weekNo;
+    document.getElementById('week-indicator').textContent = WeekNav.indicatorText();
     DayView.renderTabs(document.getElementById('day-tabs'), render);
     DayView.render(document.getElementById('day-view'), mine, weekNo);
     WeekView.render(document.getElementById('week-view'), mine, weekNo);
@@ -42,6 +43,10 @@
       b.addEventListener('click', function () { if (Forms.classPanel) Forms.classPanel(m.cls.id); });
       my.appendChild(b);
     });
+    // an open class panel for a class that was ended elsewhere closes; otherwise keep its item list fresh
+    if (Forms.currentPanel) {
+      if (!Store.classById(Forms.currentPanel)) Forms.close(); else Forms.renderPanelItems(Forms.currentPanel);
+    }
     if (Store.saveFailed) Forms.toast("Couldn't save. Your browser may be blocking storage.");
   }
 

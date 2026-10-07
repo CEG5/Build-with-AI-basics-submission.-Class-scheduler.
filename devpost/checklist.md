@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Create a class with a lecture and a practical, then recolour it in the student window and confirm the rep window's colour is unchanged.
   Commit: `Add full class form, forks, colours, recolour`
 
-- [ ] **4. Weeks, dates, upcoming row and week navigation**
+- [x] **4. Weeks, dates, upcoming row and week navigation**
   Becomes usable: The user sets the current week, moves between weeks, sees carves for the displayed week, and sees an upcoming row with dates and countdowns.
   Why now: Items belong to weeks, so the product needs week handling before it is useful across a semester.
   PRD ref: `prd.md > Weeks and dates`, `prd.md > Screens and Layout` (upcoming row, week indicator, navigation), `prd.md > States and Boundaries` (week not set)
@@ -49,7 +49,7 @@ Build mode: fast
   Learner check: Set the week, add an item a few weeks ahead, move between weeks, and check the upcoming row says what you expect.
   Commit: `Add weeks, dates, upcoming row and navigation`
 
-- [ ] **5. Class panel: delete item, end class, author versus attendee**
+- [x] **5. Class panel: delete item, end class, author versus attendee**
   Becomes usable: Only the rep sees edit controls; the rep can delete an item and end a class (with the confirmation), and it disappears from the student window.
   Why now: Completes the rule set around the core loop before polishing visuals.
   PRD ref: `prd.md > Ending a class (rep)`, `prd.md > States and Boundaries` (who can edit, ended class)

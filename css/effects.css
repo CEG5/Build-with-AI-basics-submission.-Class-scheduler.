@@ -1,3 +1,16 @@
 /* effects.css - glows, carve styling, animations (grows in later slices) */
 .carve-piece { stroke: rgba(255,255,255,.35); stroke-width: 1; filter: drop-shadow(0 0 6px rgba(255,255,255,.35)); }
 .card-svg { display: block; overflow: visible; }
+
+/* week-navigation edge clouds: a soft nebula that appears when the mouse nears the edge */
+.edge-cloud {
+  position: fixed; top: 0; bottom: 0; width: min(140px, 12vw); z-index: 3; display: flex; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .35s ease; cursor: pointer; color: var(--g5); font-size: 54px;
+}
+.edge-cloud.left { left: 0; justify-content: flex-start; padding-left: 16px;
+  background: radial-gradient(90% 55% at 0% 50%, rgba(142,182,155,.55), rgba(35,83,71,.25) 55%, transparent 80%); }
+.edge-cloud.right { right: 0; justify-content: flex-end; padding-right: 16px;
+  background: radial-gradient(90% 55% at 100% 50%, rgba(142,182,155,.55), rgba(35,83,71,.25) 55%, transparent 80%); }
+.edge-cloud.show { opacity: 1; pointer-events: auto; }
+.up-empty { opacity: .8; }
+.week-label { cursor: pointer; }

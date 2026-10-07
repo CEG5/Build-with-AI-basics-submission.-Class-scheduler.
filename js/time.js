@@ -41,6 +41,16 @@
     return d >= 0 && d <= 4 ? d : 0;
   };
 
+  // Local-date helpers (new Date('2026-10-08') would be read as UTC and can land on the wrong day).
+  Time.todayISO = function () {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  };
+  Time.parseISO = function (s) {
+    var p = String(s).split('-');
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  };
+
   function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
   // The Sunday that starts the week containing date d.
@@ -54,7 +64,7 @@
   // me.anchorWeek = N as of me.anchorDate (ISO date).
   Time.currentWeek = function (me) {
     if (me.anchorWeek === null || me.anchorWeek === undefined || !me.anchorDate) return null;
-    var anchor = sundayOf(new Date(me.anchorDate));
+    var anchor = sundayOf(Time.parseISO(me.anchorDate));
     var now = sundayOf(new Date());
     var weeks = Math.round((now - anchor) / (7 * DAY_MS));
     return me.anchorWeek + weeks;
@@ -63,7 +73,7 @@
   // Real date of (week N, day D 0-4). null when the week has not been set.
   Time.dateOf = function (me, weekNo, day) {
     if (me.anchorWeek === null || me.anchorWeek === undefined || !me.anchorDate) return null;
-    var anchor = sundayOf(new Date(me.anchorDate));
+    var anchor = sundayOf(Time.parseISO(me.anchorDate));
     var d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (weekNo - me.anchorWeek) * 7 + day);
     return d;
   };
