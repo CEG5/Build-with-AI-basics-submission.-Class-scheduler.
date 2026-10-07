@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Blocks</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/effects.css">
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<main class="panel" id="panel">
+  <header class="top">
+    <div id="upcoming" class="upcoming"></div>
+    <button id="week-indicator" class="week-indicator" type="button">Set the week</button>
+  </header>
+
+  <div class="views">
+    <section class="day-section" aria-label="Daily schedule">
+      <nav id="day-tabs" class="day-tabs"></nav>
+      <div id="day-view" class="day-view"></div>
+    </section>
+    <section class="week-section" aria-label="Weekly schedule">
+      <div class="week-head">
+        <button id="week-prev" class="nav-btn" type="button" aria-label="Previous week">&#8249;</button>
+        <span id="week-label" class="week-label"></span>
+        <button id="week-next" class="nav-btn" type="button" aria-label="Next week">&#8250;</button>
+      </div>
+      <div id="week-view" class="week-view"></div>
+    </section>
+  </div>
+
+  <footer class="bottom">
+    <div id="plus-menu" class="plus-menu" hidden>
+      <button type="button" data-action="join">Join a class</button>
+      <button type="button" data-action="create">Create a class</button>
+    </div>
+    <button id="plus-btn" class="plus-btn" type="button" aria-label="Add a class">+</button>
+    <div id="my-classes" class="my-classes"></div>
+  </footer>
+</main>
+
+<div id="edge-left" class="edge-cloud left"></div>
+<div id="edge-right" class="edge-cloud right"></div>
+
+<dialog id="modal" class="modal"></dialog>
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/store.js"></script>
+<script src="js/time.js"></script>
+<script src="js/carve.js"></script>
+<script src="js/week-view.js"></script>
+<script src="js/day-view.js"></script>
+<script src="js/upcoming.js"></script>
+<script src="js/week-nav.js"></script>
+<script src="js/forms.js"></script>
+<script src="js/background.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

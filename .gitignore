@@ -1,0 +1,8 @@
+/devpost/learner-profile.md
+.env
+.env.*
+!.env.example
+/agent/
+/.agents/
+/.claude/
+/skills-lock.json
