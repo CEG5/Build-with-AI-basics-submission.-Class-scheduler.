@@ -81,7 +81,7 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 2 (the carve working live across two windows)
+- [x] Early usable behavior explored — after slice 2 (the carve working live across two windows)
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -102,3 +102,8 @@ Activity mode:
 
 ## Revisions
 
+- Carve shape changed from an organic blob to a full-width rounded-rectangular pocket with slightly fluid corners; class names now draw above carves — learner feedback at the first hands-on check: the blob floated in the middle and covered the course title.
+- Importance slider small-end label is now just "Assignment"; the add-item button reads "Apply" — learner feedback (the longer phrase was a private joke, not for the product).
+- Material direction added to the look: granite, metal and glass-like smoothness, clean and professional — to be applied in the final polish slice.
+- Class name and code inputs are centred — learner request.
+- Double-clicking `index.html` opened a non-browser viewer for the learner (white page, no scripts); it works when opened in Chrome. Added README guidance and `open-demo.bat` (two Chrome windows) — discovered at the first hands-on check; no change to app code.

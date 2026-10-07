@@ -95,7 +95,7 @@
     }
 
     var blocks = collectBlocks(mine);
-    var carves = '';
+    var carves = '', names = '';
     blocks.forEach(function (b) {
       var g = geometry(b);
       var fill = b.forkCount > 1 ? 'url(#g-' + b.cls.id + '-' + (b.forkIndex % 2) + ')' : b.m.colour;
@@ -120,10 +120,10 @@
       var maxChars = Math.max(2, Math.floor(g.w / 6.2));
       var nm = b.cls.name.length > maxChars ? b.cls.name.slice(0, maxChars - 1) + '…' : b.cls.name;
       if (g.h > 34) {
-        s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 26) + '" class="wk-name">' + esc(nm) + '</text>';
+        names += '<text x="' + (g.x + 7) + '" y="' + (g.y + 26) + '" class="wk-name">' + esc(nm) + '</text>';
       }
     });
-    s += carves;
+    s += carves + names; // class names are drawn last so a carve never hides them
     // items whose time is outside every block of their class: carved on their own (reference area)
     mine.forEach(function (m) {
       (m.cls.items || []).forEach(function (it) {

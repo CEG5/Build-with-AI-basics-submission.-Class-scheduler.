@@ -73,7 +73,9 @@
     };
   }
 
-  var N_POINTS = 12;
+  var N_POINTS = 16;
+  var TOP_INDEX = N_POINTS * 3 / 4; // the point straight up (angle -90 degrees)
+  var SQUARENESS = 4; // 2 = ellipse; higher = more rectangular (a rounded rectangle)
 
   // ~12 points around an ellipse with seeded radius wobble (stable per item id).
   function basePoints(seedKey, aspect) {
@@ -81,10 +83,11 @@
     var pts = [];
     for (var i = 0; i < N_POINTS; i++) {
       var th = (i / N_POINTS) * Math.PI * 2;
-      var r = 0.78 + rnd() * 0.44;
-      if (i === 9) r = 1;                 // the point at the very top sits exactly on the start-time line
-      if (i === 8 || i === 10) r = Math.min(r, 1.08); // so the shoulders never rise above it
-      pts.push([Math.cos(th) * r * aspect, Math.sin(th) * r]);
+      var r = 0.93 + rnd() * 0.14;
+      if (i === TOP_INDEX) r = 1;         // the point at the very top sits exactly on the start-time line
+      if (i === TOP_INDEX - 1 || i === TOP_INDEX + 1) r = Math.min(r, 1); // so the shoulders never rise above it
+      var c = Math.cos(th), sn = Math.sin(th), e = 2 / SQUARENESS;
+      pts.push([(c < 0 ? -1 : 1) * Math.pow(Math.abs(c), e) * r * aspect, (sn < 0 ? -1 : 1) * Math.pow(Math.abs(sn), e) * r]);
     }
     return pts;
   }
@@ -144,15 +147,17 @@
     var key = [item.id, g.x.toFixed(1), g.y.toFixed(1), g.w.toFixed(1), g.h.toFixed(1), y0.toFixed(1), fraction.toFixed(3)].join('|');
     if (cache[key]) return cache[key];
 
-    var aspect = Math.max(0.7, Math.min(2.0, (g.w / g.h) * 0.9));
-    var base = basePoints(item.id || 'x', aspect);
+    // The piece spans the block's width (a small margin each side, like a pocket cut into it); only its
+    // depth changes to fit the target area. Rounded, slightly uneven corners keep it fluid.
+    var hw = Math.max(8, g.w / 2 - 5);
+    var base = basePoints(item.id || 'x', 1);
     var poly0 = polygon(base);
     var ymin = Infinity;
     poly0.forEach(function (p) { if (p[1] < ymin) ymin = p[1]; });
     var cx = g.x + g.w / 2;
 
     function place(s) {
-      return base.map(function (p) { return [cx + s * p[0], y0 + s * (p[1] - ymin)]; });
+      return base.map(function (p) { return [cx + hw * p[0], y0 + s * (p[1] - ymin)]; });
     }
     function coverage(s) {
       var poly = polygon(place(s)), hit = 0;
@@ -166,7 +171,7 @@
 
     // Scan upward for the first scale that reaches the target, then refine. Scanning (not a plain
     // binary search) keeps this correct even if coverage is not perfectly monotonic.
-    var hi = Math.max(g.w, g.h) * 3, steps = 40, prev = 1, found = -1, best = 1, bestCov = -1;
+    var hi = g.h * 3, steps = 40, prev = 1, found = -1, best = 1, bestCov = -1;
     for (var k = 0; k <= steps; k++) {
       var sk = 1 * Math.pow(hi, k / steps);
       var ck = coverage(sk);

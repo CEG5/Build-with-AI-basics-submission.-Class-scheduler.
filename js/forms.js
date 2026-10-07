@@ -158,9 +158,9 @@
       '<div class="field" id="imp-wrap"><span class="lbl">How important is it?</span>' +
       '<div class="slider-wrap"><input type="range" name="importance" min="0" max="100" value="40">' +
       '<div class="marker" style="left:44.4%"><i></i><span>typical midterm</span></div></div>' +
-      '<div class="slider-ends"><span>Not the end of the world, but can\'t be ignored</span><span>As important as a final</span></div></div>' +
+      '<div class="slider-ends"><span>Assignment</span><span>As important as a final</span></div></div>' +
       '<p class="error" id="item-error" hidden></p>' +
-      '<div class="actions"><button type="submit" class="primary">Carve it</button></div></form>';
+      '<div class="actions"><button type="submit" class="primary">Apply</button></div></form>';
   };
 
   Forms.wireItemForm = function (classId) {
@@ -193,7 +193,7 @@
       DayView.selectedDay = parseInt(form.day.value, 10);
       Forms.onChange({ itemAdded: true });
       Forms.renderPanelItems(classId);
-      Forms.toast('Carved.');
+      Forms.toast('Applied.');
     });
   };
 

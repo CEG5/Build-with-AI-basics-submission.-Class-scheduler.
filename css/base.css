@@ -74,7 +74,7 @@ body {
 .wk-hour { fill: var(--g4); font: 600 10px var(--font); opacity: .8; }
 .wk-block { stroke: rgba(0,0,0,.25); stroke-width: 1; }
 .wk-stud { fill: rgba(255,255,255,.35); }
-.wk-name { fill: #0a1a18; font: 800 11px var(--font); pointer-events: none; }
+.wk-name { fill: #fff; stroke: rgba(5,31,32,.75); stroke-width: 3px; paint-order: stroke; stroke-linejoin: round; font: 800 11px var(--font); pointer-events: none; }
 
 .bottom { position: relative; margin-top: 10px; display: flex; align-items: center; justify-content: center; min-height: 54px; }
 .plus-btn {
@@ -143,3 +143,4 @@ body {
 .card-items { list-style: none; margin: 6px 0 0; padding: 0; font-size: 12px; font-weight: 700; }
 .card-items .desc { font-weight: 600; opacity: .85; }
 .day-card.loose { color: var(--g5); }
+.form input[name=name], .form input[name=code], .form input[name=title] { text-align: center; }

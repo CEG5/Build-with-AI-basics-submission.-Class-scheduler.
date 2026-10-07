@@ -56,6 +56,7 @@ Carried forward from `prd.md > Look and Feel`; no new design discovery.
 - **Carve colour:** the complement, computed in code by rotating the hue 180° (not hand-picked).
 - **Fork shades:** same hue; lecture goes dark to light and practical goes light to dark (a gradient inside the block).
 - **Shape:** rounded pill and block corners, small stud-like details, soft glows (CSS `box-shadow`/`filter: blur`) for the nebula effect.
+- **Material:** granite (dark stone texture), brushed metal edges and highlights, frosted glass panels, all smooth and clean; added after the learner's first hands-on feedback.
 - **Typography:** a rounded system font stack (no web fonts, so it works offline). Bold, tactile, slightly chunky.
 - **Tone of copy:** short, friendly, plain. Messages are as written in the PRD.
 - **Constraint:** nebula/aurora glows are built from blurred gradients, not true volumetric effects. They are simplified first and enriched later, per `prd.md > What We're Building`.
@@ -72,9 +73,9 @@ PRD ref: `prd.md > Weeks and dates`.
 
 ### Carve engine (`carve.js`)
 One function: `buildCarve(block, item, seed)` returns the blob path and the mask. Steps:
-1. Make ~12 points around an ellipse, nudge each radius by a seeded random amount (seed = item id, so the shape is stable), and join them with smooth curves.
-2. Fix the blob's top edge on the item's start-time line, centred on the block's day column.
-3. Binary-search the blob scale until the part inside the block covers the target fraction. Coverage is estimated by sampling a grid of points. Targets: midterm = 1/3, final = 1/2, quiz/other = 20–50% from the slider.
+1. Make 16 points around a rounded rectangle (superellipse), nudge each radius slightly by a seeded random amount (seed = item id, so the shape is stable), and join them with smooth curves.
+2. Fix the shape's top edge on the item's start-time line; its width spans the block (small margin each side) and only its depth is fitted.
+3. Search the depth until the part inside the block covers the target fraction. Coverage is estimated by sampling a grid of points. Targets: midterm = 1/3, final = 1/2, quiz/other = 20–50% from the slider.
 4. Return the shape for the SVG `<mask>` (block minus blob) and the blob drawn in the complement colour.
 If the time falls outside every class block, the blob is drawn alone using a reference area (a standard 100-minute block at column width). If the blob would run past the block's bottom, it is clipped, and the area then falls short of target; accepted for the POC.
 PRD ref: `prd.md > Adding an item (rep)` (the carve acceptance items), `prd.md > Look and Feel`.

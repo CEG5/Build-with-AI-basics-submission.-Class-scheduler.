@@ -33,7 +33,8 @@ One screen, a floating main panel in the middle with background space around it.
 - **Class colours must pop against the greens** so the app looks different from other apps that use these greens.
 - **Background:** starts as a living field of blocks shifting, rising and falling, like time passing in university (assignments appearing, midterms arriving and leaving). It relaxes into a unified interlocking grid once the student has classes.
 - **Effects:** nebula or aurora-style glows around the active block and at the week-navigation edges.
-- **Carve:** organic and nebula-like, not a straight cut, taking in corners.
+- **Material:** clean and professional, smooth surfaces in the feel of granite, metal and glass (the learner's preference; not literal glass).
+- **Carve:** a clean, rounded-rectangular pocket cut from the start-time line across the block, with slightly fluid corners (revised from "organic blob" after the learner's feedback at the first hands-on check).
 
 ## Features and Behavior
 
@@ -57,7 +58,7 @@ The rep opens the class panel and adds an item to any week without scrolling to 
 - **Week, day and time:** separate controls, with faint horizontal guide lines on the grid pointing to the top of the carve.
 - **Description:** for quizzes, with extra details such as the material covered.
 - **Name:** for "other" only, the form expands to show a title field.
-- **Importance slider:** for quiz and other only. It sets how deep the carve is, from about 20% to 50% of the block's area. The small end is labelled like an assignment ("not the end of the world, but can't be ignored"). A marker partway along shows where a typical midterm sits. The big end is labelled as important as a final. No percentages are shown.
+- **Importance slider:** for quiz and other only. It sets how deep the carve is, from about 20% to 50% of the block's area. The small end is labelled "Assignment". A marker partway along shows where a typical midterm sits. The big end is labelled as important as a final. No percentages are shown.
 - Midterm is fixed at one third and final is fixed at half. Neither has an importance slider.
 - **No colour option.** Every carve uses the complement of the class colour the student sees.
 - The carve works like a Boolean cut. If the time falls outside any class block, it carves its own area at that time.
