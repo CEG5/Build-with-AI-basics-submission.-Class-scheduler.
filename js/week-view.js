@@ -55,6 +55,19 @@
     };
   }
 
+  // Engraved text: a light copy one pixel lower (the lower lip of the cut) under a dark copy. The size shrinks
+  // a little to fit the width, then the text is cut short with an ellipsis if it still does not fit.
+  function engraved(x, y, str, avail, size, cls, anchor) {
+    var s = size;
+    if (str.length * s * 0.58 > avail) s = Math.max(Math.min(size, 8), avail / (str.length * 0.58));
+    var max = Math.max(1, Math.floor(avail / (s * 0.58)));
+    var txt = str.length > max ? str.slice(0, Math.max(1, max - 1)) + '…' : str;
+    if (max < 3 && str.length > max) return '';
+    var at = anchor ? ' text-anchor="' + anchor + '"' : '';
+    return '<text x="' + x + '" y="' + (y + 0.9) + '" class="' + cls + ' lip" font-size="' + s.toFixed(1) + '"' + at + '>' + esc(txt) + '</text>' +
+           '<text x="' + x + '" y="' + y + '" class="' + cls + ' cut" font-size="' + s.toFixed(1) + '"' + at + '>' + esc(txt) + '</text>';
+  }
+
   var WeekView = { W: W, H: H, HOUR: HOUR, TOP: TOP, LEFT: LEFT, COLW: COLW, collectBlocks: collectBlocks, geometry: geometry };
 
   WeekView.render = function (el, mine, weekNo) {
@@ -102,15 +115,20 @@
       s += res.carves;
       // lit top and left edges
       s += '<path d="M' + (g.x + 3) + ' ' + (g.y + .5) + 'H' + (g.x + g.w - 3) + 'M' + (g.x + .5) + ' ' + (g.y + 3) + 'V' + (g.y + g.h - 3) + '" class="wk-edge"/>';
-      // name plate: a darker strip along the top of the block that carries the class name
-      if (g.h > 24) s += '<path d="M' + g.x + ' ' + (g.y + 3) + 'Q' + g.x + ' ' + g.y + ' ' + (g.x + 3) + ' ' + g.y + 'H' + (g.x + g.w - 3) + 'Q' + (g.x + g.w) + ' ' + g.y + ' ' + (g.x + g.w) + ' ' + (g.y + 3) + 'V' + (g.y + 19) + 'H' + g.x + 'Z" class="wk-plate"/>';
-      var maxChars = Math.max(2, Math.floor(g.w / 6.4));
-      var nm = b.cls.name.length > maxChars ? b.cls.name.slice(0, maxChars - 1) + '…' : b.cls.name;
-      if (g.h > 24) s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 13.5) + '" class="wk-name">' + esc(nm) + '</text>';
-      if (g.h > 46 && b.session.note) {
-        var nt = b.session.note.length > maxChars ? b.session.note.slice(0, maxChars - 1) + '…' : b.session.note;
-        s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 33) + '" class="wk-note">' + esc(nt) + '</text>';
+      // Text is engraved (dented) into the block: a dark cut with a light lower lip. It is fitted to the space
+      // it has, and clipped to the block so it can never run outside.
+      var tcid = 'tx-' + bodyId;
+      s += '<clipPath id="' + tcid + '"><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3"/></clipPath><g clip-path="url(#' + tcid + ')">';
+      if (g.h > 22) s += engraved(g.x + 8, g.y + 15, b.cls.name, g.w - 14, 11, 'wk-eng');
+      if (g.h > 44 && b.session.note) s += engraved(g.x + 8, g.y + 28, b.session.note.toUpperCase(), g.w - 14, 8.5, 'wk-eng small');
+      if (items.length) {
+        // the name of the quiz, midterm or other, engraved into the carved piece
+        var fit = Carve.fit(g, items);
+        var pw = fit.a * g.w, ph = fit.b * g.h;
+        var label = DayView.itemName(items[0]) + (items.length > 1 ? ' +' + (items.length - 1) : '');
+        if (ph >= 15 && pw >= 28) s += engraved(g.x + g.w - pw / 2, g.y + g.h - ph / 2 + 3.5, label, pw - 12, 10, 'wk-eng item', 'middle');
       }
+      s += '</g>';
       s += '</g>';
     });
 

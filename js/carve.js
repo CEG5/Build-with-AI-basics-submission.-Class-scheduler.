@@ -194,7 +194,8 @@
       }
       phi = (lo + hi) / 2;
     }
-    var res = { d: pathOf(place(phi)), coverage: coverage(phi), target: fraction, orient: orient };
+    var dm = dims(phi, orient);
+    var res = { d: pathOf(place(phi)), coverage: coverage(phi), target: fraction, orient: orient, a: dm.a, b: dm.b };
     cache[key] = res;
     return res;
   };
