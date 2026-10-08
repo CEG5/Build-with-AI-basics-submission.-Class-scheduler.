@@ -221,7 +221,7 @@
 
   // Mask + piece for one block. Returns {defs, maskId, carves}; maskId is '' when there is nothing to carve.
   Carve.blockCarves = function (g, items, colour, id) {
-    if (!items || !items.length) return { defs: '', maskId: '', carves: '', count: 0 };
+    if (!items || !items.length) return { defs: '', maskId: '', carves: '', side: '', count: 0 };
     var f = Carve.fit(g, items);
     var comp = Carve.complement(colour);
     var maskId = 'm-' + esc(id), clipId = 'k-' + esc(id), rx = g.rx === undefined ? 3 : g.rx;
@@ -231,7 +231,12 @@
                '<clipPath id="' + clipId + '"><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="' + rx + '"/></clipPath>';
     var piece = '<path d="' + f.d + '" fill="' + comp + '" class="carve-piece" clip-path="url(#' + clipId + ')" data-item="' + esc(items[0].id) +
                 '" data-coverage="' + f.coverage.toFixed(3) + '" data-orient="' + f.orient + '"/>';
-    return { defs: defs, maskId: maskId, carves: piece, count: items.length };
+    // the piece is raised like the block: its own darker side face, shifted down by g.rise and clipped to the block
+    var side = '';
+    if (g.rise) {
+      side = '<g transform="translate(0,' + g.rise + ')" clip-path="url(#' + clipId + ')"><path d="' + f.d + '" fill="' + Carve.shade(comp, -0.28) + '" class="carve-side"/></g>';
+    }
+    return { defs: defs, maskId: maskId, carves: piece, side: side, count: items.length };
   };
 
   // An item on a day with no class: carved alone on a dashed reference block (a 100-minute block at column width).

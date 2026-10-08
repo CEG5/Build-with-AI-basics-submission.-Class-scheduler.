@@ -108,6 +108,7 @@ Activity mode:
 
 ## Revisions
 
+- Bug found at the final review: the carved piece (e.g. a yellow quiz on a blue block) had no raised bottom edge. It now has its own side face, so the block and the piece both stand up. Week blocks also got lit top/left edges and a darker name plate along the top — learner request.
 - Fifth feedback round (from the learner's chiselled-stone reference): the front element is a light stone slab with a chipped outline, and the background is a mosaic of chipped stone slabs that still slide in chains; the insides of the daily and weekly schedules are plain and untextured; the week-change zones are now a clean emerald fade with one arrow (the cloud looked odd). The honed rim stays clean, not rough.
 - Fourth feedback round: the rim is now rough, lit stone (relief lit from the top left); the background is plain concrete in shades; lighting reworked to one soft light from the top left (raised edges lit, soft deep shadows to the bottom right, recessed surfaces reversed, faint window-light bands); buttons, tabs and inputs are smooth with no texture; the cosmic nebula is now deep emerald and teal, with emerald as the accent colour for buttons and highlights — learner feedback and reference image (used for lighting only).
 - Third feedback round: the background blocks are now real stone (granite, slate, basalt, marble textures that move with each block), and the main surfaces, cards, tabs, dialogs and inputs use stone textures kept dark for readability — the learner wanted a stone background and more visible stone.

@@ -51,7 +51,7 @@
       y: TOP + (b.startMin / 60) * HOUR,
       w: laneW - 3,
       h: Math.max(14, ((b.endMin - b.startMin) / 60) * HOUR - RISE),
-      rx: 3
+      rx: 3, rise: RISE
     };
   }
 
@@ -97,14 +97,19 @@
       // side face: the block stands RISE px above the surface
       // (the same carve is cut through the side face, shifted down by RISE, so the raised edge is carved too)
       s += '<g transform="translate(0,' + RISE + ')"' + mask + '><rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3" fill="' + Carve.shade(b.m.colour, -0.28) + '" class="wk-side"/></g>';
+      s += res.side; // the carved piece's own raised edge
       s += '<rect x="' + g.x + '" y="' + g.y + '" width="' + g.w + '" height="' + g.h + '" rx="3" class="wk-block" fill="url(#wg-' + b.cls.id + ')"' + mask + '/>';
       s += res.carves;
+      // lit top and left edges
+      s += '<path d="M' + (g.x + 3) + ' ' + (g.y + .5) + 'H' + (g.x + g.w - 3) + 'M' + (g.x + .5) + ' ' + (g.y + 3) + 'V' + (g.y + g.h - 3) + '" class="wk-edge"/>';
+      // name plate: a darker strip along the top of the block that carries the class name
+      if (g.h > 24) s += '<path d="M' + g.x + ' ' + (g.y + 3) + 'Q' + g.x + ' ' + g.y + ' ' + (g.x + 3) + ' ' + g.y + 'H' + (g.x + g.w - 3) + 'Q' + (g.x + g.w) + ' ' + g.y + ' ' + (g.x + g.w) + ' ' + (g.y + 3) + 'V' + (g.y + 19) + 'H' + g.x + 'Z" class="wk-plate"/>';
       var maxChars = Math.max(2, Math.floor(g.w / 6.4));
       var nm = b.cls.name.length > maxChars ? b.cls.name.slice(0, maxChars - 1) + '…' : b.cls.name;
-      if (g.h > 22) s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 16) + '" class="wk-name">' + esc(nm) + '</text>';
-      if (g.h > 40 && b.session.note) {
+      if (g.h > 24) s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 13.5) + '" class="wk-name">' + esc(nm) + '</text>';
+      if (g.h > 46 && b.session.note) {
         var nt = b.session.note.length > maxChars ? b.session.note.slice(0, maxChars - 1) + '…' : b.session.note;
-        s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 29) + '" class="wk-note">' + esc(nt) + '</text>';
+        s += '<text x="' + (g.x + 7) + '" y="' + (g.y + 33) + '" class="wk-note">' + esc(nt) + '</text>';
       }
       s += '</g>';
     });
