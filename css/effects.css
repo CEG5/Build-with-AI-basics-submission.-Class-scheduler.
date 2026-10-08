@@ -208,3 +208,27 @@ body {
     radial-gradient(45% 260% at 98% 10%, rgba(40,150,110,.42), transparent 70%),
     #040b0a;
 }
+
+/* ===== Chiselled slab: the front element is a light stone slab with a chipped outline ===== */
+.slab {
+  filter: drop-shadow(0 5px 0 #2a2d31) drop-shadow(-2px -2px 2px rgba(255,255,255,.18)) drop-shadow(8px 12px 10px rgba(0,0,0,.55)) drop-shadow(0 30px 40px rgba(0,0,0,.45));
+}
+.panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,.2) 100%),
+    url("stone-honed.svg") 0 0 / 512px 512px, #8d9298;
+  box-shadow: none; border-radius: 0;
+}
+.ridge { background: url("stone-honed.svg") 0 0 / 512px 512px, #8d9298; }
+
+/* inside the slab: calm, simple, untextured surfaces */
+.panel-inner { background: #191c1f; box-shadow: inset 5px 6px 14px rgba(0,0,0,.6), inset -2px -2px 6px rgba(255,255,255,.04), 0 0 0 1px rgba(0,0,0,.7); }
+.day-section, .week-section { background: #14171a; box-shadow: inset 3px 4px 10px rgba(0,0,0,.5); }
+.day-card { background: #20242a; }
+.modal { background: #1b1e22; }
+.form input:not([type=range]):not([type=checkbox]):not([type=radio]), .form select, .form textarea { background: #0e1214; }
+
+/* week-change zones: a clean emerald fade from the edge with a single arrow, no clouds */
+.edge-zone.left::before  { background: linear-gradient(90deg, rgba(10,52,43,.92), rgba(10,52,43,.45) 55%, transparent); }
+.edge-zone.right::before { background: linear-gradient(270deg, rgba(10,52,43,.92), rgba(10,52,43,.45) 55%, transparent); }
+.edge-zone span { color: #bfeedd; }

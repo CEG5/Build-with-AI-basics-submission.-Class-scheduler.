@@ -52,6 +52,15 @@
   };
   Store.onChange(render); // another window changed the shared classes
 
+  // The front element is a chiselled stone slab: its outline is chipped, redrawn when the window is resized.
+  var panel = document.getElementById('panel');
+  function shapePanel() {
+    var w = panel.offsetWidth, h = panel.offsetHeight;
+    if (w && h) panel.style.clipPath = Chip.css(Chip.points(w, h, { seed: 'slab', amp: 4.5, step: 46, corner: 18 }));
+  }
+  shapePanel();
+  if (window.ResizeObserver) new ResizeObserver(shapePanel).observe(panel); else window.addEventListener('resize', shapePanel);
+
   render();
   document.getElementById('week-view').scrollTop = 6.5 * WeekView.HOUR; // start the view around 6:30 a.m.
   window.App = { render: render };

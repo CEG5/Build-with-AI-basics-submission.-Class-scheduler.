@@ -12,12 +12,12 @@
   var MAX_H = 140;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var STONES = ['concrete']; // plain concrete; the shades come from each block being a little lighter or darker
+  var STONES = ['honed']; // plain concrete; the shades come from each block being a little lighter or darker
   var patterns = {};
   var cols = [], calm = false, W = 0, H = 0, ease = 0, last = 0;
 
   // load the stone textures (tiles); until a texture has loaded its blocks are drawn in a plain grey
-  ['concrete'].forEach(function (name) {
+  ['honed'].forEach(function (name) {
     var img = new Image();
     img.onload = function () { if (ctx) patterns[name] = ctx.createPattern(img, 'repeat'); };
     img.src = 'css/stone-' + name + '.svg';
@@ -44,7 +44,7 @@
       while (total < H + 720) { // long enough that blocks only wrap while out of view
         var h = pick(BLOCK_H);
         // each block is its own cut of stone: a random window onto the texture, and a little lighter or darker
-        blocks.push({ h: h, l: base + rand(-6, 6), ox: Math.floor(rand(0, 512)), oy: Math.floor(rand(0, 512)), dark: rand(0.05, 0.55) });
+        blocks.push({ h: h, l: base + rand(-6, 6), ox: Math.floor(rand(0, 512)), oy: Math.floor(rand(0, 512)), dark: rand(0.06, 0.5), shape: null, sw: 0, sh: 0 });
         total += h;
       }
       cols.push({
@@ -118,24 +118,30 @@
         var b = c.blocks[j];
         if (y + b.h > -4 && y < H + 4) {
           var bx = c.x + GAP / 2, by = y + GAP / 2, bw = c.w - GAP, bh = b.h - GAP;
+          // each block is a chiselled slab: a chipped outline (made once per size), a shadow cast to the lower right,
+          // the stone texture moving with the block, and a lit top-left edge
+          if (!b.shape || b.sw !== bw || b.sh !== bh) {
+            b.shape = Chip.points(bw, bh, { seed: c.x + ':' + j, amp: Math.min(3.2, Math.min(bw, bh) * 0.07), step: 38, corner: Math.min(9, Math.min(bw, bh) * 0.2) });
+            b.sw = bw; b.sh = bh;
+          }
+          Chip.path(ctx, bx + 3, by + 4, b.shape); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fill();
           var pat = patterns[c.stone];
+          Chip.path(ctx, bx, by, b.shape);
           if (pat) {
-            // the stone texture moves with the block (it is clipped to the block, offset by its own window)
-            ctx.save();
-            roundRect(bx, by, bw, bh, 3); ctx.clip();
+            ctx.save(); ctx.clip();
             ctx.translate(bx - b.ox, by - b.oy);
             ctx.fillStyle = pat; ctx.fillRect(b.ox, b.oy, bw, bh);
             ctx.restore();
-            ctx.fillStyle = 'rgba(0,0,0,' + b.dark.toFixed(2) + ')';
-            roundRect(bx, by, bw, bh, 3); ctx.fill();
+            Chip.path(ctx, bx, by, b.shape);
+            ctx.fillStyle = 'rgba(0,0,0,' + b.dark.toFixed(2) + ')'; ctx.fill();
           } else {
-            ctx.fillStyle = 'hsl(214,7%,' + b.l.toFixed(1) + '%)';
-            roundRect(bx, by, bw, bh, 3); ctx.fill();
+            ctx.fillStyle = 'hsl(214,5%,' + (b.l + 14).toFixed(1) + '%)'; ctx.fill();
           }
-          // a soft gradient within the block: lighter at the top, darker at the bottom
-          ctx.fillStyle = 'rgba(255,255,255,.045)'; ctx.fillRect(bx, by, bw, bh * 0.5);
-          ctx.fillStyle = 'rgba(0,0,0,.10)'; ctx.fillRect(bx, by + bh * 0.5, bw, bh * 0.5);
-          ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(bx + 2, by, Math.max(0, bw - 4), 1);
+          // soft light across the block, from the top left
+          var lg = ctx.createLinearGradient(bx, by, bx + bw * 0.6, by + bh);
+          lg.addColorStop(0, 'rgba(255,255,255,.14)'); lg.addColorStop(0.5, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(0,0,0,.16)');
+          Chip.path(ctx, bx, by, b.shape); ctx.fillStyle = lg; ctx.fill();
+          ctx.strokeStyle = 'rgba(0,0,0,.4)'; ctx.lineWidth = 1; ctx.stroke();
         }
         y += b.h;
       }
