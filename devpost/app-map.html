@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Blocks: App Map</title>
+<style>
+  :root { --bg:#14171a; --card:#1d2125; --line:#2f353b; --text:#e8eaed; --muted:#9aa2aa; --accent:#2a8f74; --hi:#7fe0bd; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 20px 60px; background:var(--bg); color:var(--text); font:16px/1.6 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 26px; letter-spacing:.04em; margin:0 0 4px; }
+  h2 { font-size: 13px; letter-spacing:.16em; text-transform:uppercase; color:var(--hi); margin:38px 0 12px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  code { font-family: Consolas, monospace; background:#0d1013; padding:1px 6px; border-radius:3px; color:#cfe9df; font-size: .92em; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:4px; padding:14px 16px; margin-bottom:10px; }
+  .flow { display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; }
+  .step { flex:1 1 150px; background:var(--card); border:1px solid var(--line); border-top:3px solid var(--accent); border-radius:4px; padding:10px 12px; font-size:14px; }
+  .step b { display:block; color:var(--hi); font-size:12px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px; }
+  .arrow { align-self:center; color:var(--muted); font-size:22px; }
+  details { background:var(--card); border:1px solid var(--line); border-radius:4px; padding:10px 14px; margin-bottom:10px; }
+  summary { cursor:pointer; font-weight:600; }
+  summary:focus-visible, a:focus-visible { outline:2px solid var(--hi); outline-offset:2px; }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  table { border-collapse: collapse; width:100%; font-size:14px; }
+  td { border-top:1px solid var(--line); padding:7px 8px; vertical-align:top; }
+  td:first-child { white-space:nowrap; width: 1%; }
+  .stop { border-left:3px solid var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Class Blocks &middot; App Map</h1>
+  <p class="muted">A snapshot of the finished proof of concept (commit <code>d6e5fbb</code>). The code can move on after this, so use the names to search rather than trusting line numbers.</p>
+
+  <h2>What the app is</h2>
+  <p>A class scheduler. A class rep creates a class and gets a six-character code. Classmates join with the code. When the rep adds a quiz, midterm, final or other item, a piece is carved out of the class block, and every window that has joined the class shows it.</p>
+  <p>There is no server. Classes are stored in the browser (<code>localStorage</code>), and each window keeps its own private note (<code>sessionStorage</code>) about which classes it created or joined. That is how two windows on one computer can play rep and student.</p>
+
+  <h2>One action, end to end: the rep presses Apply</h2>
+  <div class="flow" role="list">
+    <div class="step" role="listitem"><b>1 &middot; Form</b>The rep fills in the add-item form and presses Apply.<br><code>js/forms.js</code></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="step" role="listitem"><b>2 &middot; Save</b>The item is written into the shared classes in the browser.<br><code>js/store.js</code></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="step" role="listitem"><b>3 &middot; Notify</b>The browser tells the other window the data changed.<br><code>js/store.js</code></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="step" role="listitem"><b>4 &middot; Shape</b>The carve is sized so it covers the right fraction of the block.<br><code>js/carve.js</code></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="step" role="listitem"><b>5 &middot; Draw</b>The week and day views redraw with the carve.<br><code>js/week-view.js</code></div>
+  </div>
+
+  <h2>A route through the code (reference, 3 stops)</h2>
+  <div class="card stop"><p><b>Stop 1: the entry point.</b> In <code>js/forms.js</code>, search for <code>Forms.wireItemForm</code>. Its submit handler reads the form, calls <code>Store.addItem(...)</code>, then <code>Forms.onChange(...)</code> to redraw this window.</p></div>
+  <div class="card stop"><p><b>Stop 2: the storage and the sharing.</b> In <code>js/store.js</code>, search for <code>Store.addItem</code> (it saves the item inside its class) and for <code>addEventListener('storage'</code> (the browser fires this in the <em>other</em> window, which then calls <code>Store.notify</code> and redraws).</p></div>
+  <div class="card stop"><p><b>Stop 3: the kernel.</b> In <code>js/carve.js</code>, search for <code>Carve.fit</code>. It tries sizes until the shape covers the target fraction of the block (midterm 1/3, final 1/2, quiz 20&ndash;50% from the slider), growing from the bottom-right corner. <code>js/week-view.js</code> (<code>WeekView.render</code>) cuts that shape out of the block with an SVG mask.</p></div>
+
+  <h2>To change this, start here</h2>
+  <table>
+    <tr><td>A label or message</td><td><code>js/forms.js</code> (form text) and <code>Store.joinClass</code> in <code>js/store.js</code> (join messages)</td></tr>
+    <tr><td>The class colours</td><td><code>COLOURS</code> at the top of <code>js/store.js</code></td></tr>
+    <tr><td>How big a midterm or final is</td><td><code>Carve.fractionOf</code> in <code>js/carve.js</code></td></tr>
+    <tr><td>How the carve looks</td><td><code>SQUARENESS</code> and <code>WOBBLE</code> in <code>js/carve.js</code></td></tr>
+    <tr><td>The look (stone, lighting, buttons)</td><td><code>css/effects.css</code>; layout and sizes are in <code>css/base.css</code></td></tr>
+    <tr><td>The sliding background</td><td><code>js/background.js</code></td></tr>
+    <tr><td>Everything is redrawn from</td><td><code>render</code> in <code>js/app.js</code></td></tr>
+  </table>
+
+  <h2>Where things are</h2>
+  <details>
+    <summary>The folder, in plain words</summary>
+    <ul>
+      <li><code>index.html</code>: the one page. It only holds the empty frame and loads the scripts in order.</li>
+      <li><code>css/</code>: <code>base.css</code> (layout and parts), <code>effects.css</code> (the stone look), and the stone textures.</li>
+      <li><code>js/</code>: one file per job. <code>store.js</code> data, <code>time.js</code> days and dates, <code>carve.js</code> the carve, <code>week-view.js</code> and <code>day-view.js</code> the two views, <code>forms.js</code> the dialogs, <code>background.js</code> the background, <code>app.js</code> ties it together.</li>
+      <li><code>test/carve-test.html</code>: a check page for the carve areas.</li>
+      <li><code>devpost/</code>: the planning documents.</li>
+    </ul>
+    <p class="muted">Each script is loaded with a plain script tag in a set order (see the bottom of <code>index.html</code>), so a file can use the ones before it.</p>
+  </details>
+
+  <h2>A practice to reuse</h2>
+  <div class="card">
+    <p><b>Check the number, then look at it with the person it is for.</b> The carve had a measurable rule (midterm one third, final one half). <code>test/carve-test.html</code> proved the areas were right, and it kept passing while the carve was redesigned twice. What changed the design was trying it: the shape floated in the middle and covered the course title, so the rule moved to &ldquo;fill from the bottom-right corner&rdquo;. Next time, write the rule so it can be measured, and put it in front of the user while it is still cheap to change.</p>
+  </div>
+
+  <h2>Run it again</h2>
+  <p>Double-click <code>open-demo.bat</code> (opens two Chrome windows), or open <code>index.html</code> in Chrome and press Ctrl+N for a second window. Create a class in one, join it in the other, then add a quiz.</p>
+</main>
+</body>
+</html>

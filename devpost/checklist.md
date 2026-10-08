@@ -82,7 +82,7 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 2 (the carve working live across two windows)
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
@@ -92,19 +92,19 @@ Build mode: fast
 - [x] Weekly header: week button at left, upcoming strip beside it (dark nebula when something is coming); old top row and duplicate arrows removed; week-change zones live inside the weekly schedule
 - [x] Add-item form defaults to the class's day and time and warns when there is no class that day
 - [x] Pop animation (block rises out of the surface, grey to colour) on join and create
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: brief recap, not hands-on practice (the learner chose to move on to shipping). Evidence used: the carve's measurable rule in `test/carve-test.html` kept passing while the carve design changed twice after the learner's hands-on feedback.
+Route and stops: reference route only, not toured: `js/forms.js` (`Forms.wireItemForm`) -> `js/store.js` (`Store.addItem`, storage event) -> `js/carve.js` (`Carve.fit`) -> `js/week-view.js` (`WeekView.render`).
+Edit outcome: not offered (the learner wanted to move on).
+Reflection: offered once in chat; see the ignored learner profile if answered.
+Activity mode: recap, with a reference route in the app map.
 
 ## Revisions
 
