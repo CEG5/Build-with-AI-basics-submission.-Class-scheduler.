@@ -191,3 +191,7 @@ None. No APIs, accounts, keys, libraries or hosting. All built on browser featur
 - Data model: `sessions: [{day, startMin, endMin, note}]` replaces `forks` (older saved classes with forks are flattened on read).
 - Carve: fills from the class block's bottom-right corner (bottom-right quarter first, then up the right side or along the bottom); the item time no longer positions it. See `checklist.md > Revisions`.
 - Look: matte grey, raised marble rim, sharper shapes; upcoming strip moved beside the week button; no top row.
+
+## Sharing Links
+- Public GitHub repository: https://github.com/CEG5/Build-with-AI-basics-submission.-Class-scheduler.
+- Demo video (YouTube): https://youtu.be/jmuRFWs7Dps
