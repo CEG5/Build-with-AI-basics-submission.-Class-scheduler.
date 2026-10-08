@@ -241,7 +241,7 @@ body {
 
 /* engraved text: dark cut, light lower lip; no plate behind the names */
 .wk-eng { font-family: var(--font); font-weight: 700; letter-spacing: .02em; stroke: none; pointer-events: none; }
-.wk-eng.cut { fill: rgba(0,0,0,.62); }
-.wk-eng.lip { fill: rgba(255,255,255,.38); }
+.wk-eng.cut { fill: rgba(0,0,0,.82); }
+.wk-eng.lip { fill: rgba(255,255,255,.55); }
 .wk-eng.small { letter-spacing: .08em; }
 .wk-plate, .wk-name, .wk-note { display: none; }
